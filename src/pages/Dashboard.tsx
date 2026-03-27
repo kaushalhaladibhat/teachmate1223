@@ -53,6 +53,34 @@ const Dashboard = () => {
     return () => unsub();
   }, [uid]);
 
+  // Sync reports from Firebase
+  useEffect(() => {
+    if (!uid) return;
+    const reportsRef = ref(db, `users/${uid}/reports`);
+    const unsub = onValue(reportsRef, (snap) => {
+      setReports(snap.val() || {});
+    });
+    return () => unsub();
+  }, [uid]);
+
+  // Sync timetable for period tracker
+  useEffect(() => {
+    if (!uid) return;
+    const ttRef = ref(db, `users/${uid}/timetable`);
+    const unsub = onValue(ttRef, (snap) => {
+      const data = snap.val();
+      setTimetableEntries(data ? Object.values(data) : []);
+    });
+    return () => unsub();
+  }, [uid]);
+
+  const updateReports = (newReports: Record<string, any>) => {
+    setReports(newReports);
+    if (uid) {
+      set(ref(db, `users/${uid}/reports`), newReports);
+    }
+  };
+
   const updateStudents = (newStudents: Student[]) => {
     setStudents(newStudents);
     if (uid) {
