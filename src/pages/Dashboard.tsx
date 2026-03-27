@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
-import { Users, Shuffle, BarChart3, Bot, LogOut, Calendar, Bell, Shield } from "lucide-react";
+import { Users, Shuffle, BarChart3, Bot, LogOut, Calendar, Bell, Shield, ClipboardList, FileQuestion } from "lucide-react";
 import { ref, set, onValue } from "firebase/database";
 import { db } from "@/lib/firebase";
 import { isAdmin } from "@/lib/roles";
@@ -12,14 +12,19 @@ import AIAssistant from "@/components/AIAssistant";
 import TimetableManager from "@/components/TimetableManager";
 import AlertsManager from "@/components/AlertsManager";
 import AlertBanner from "@/components/AlertBanner";
+import PeriodTracker from "@/components/PeriodTracker";
+import StudentReports from "@/components/StudentReports";
+import QuestionPaperGenerator from "@/components/QuestionPaperGenerator";
 
-type Tab = "students" | "picker" | "marks" | "ai" | "timetable" | "alerts";
+type Tab = "students" | "picker" | "marks" | "ai" | "timetable" | "alerts" | "reports" | "qpaper";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const admin = isAdmin(user?.email);
   const [active, setActive] = useState<Tab>("students");
   const [students, setStudents] = useState<Student[]>([]);
+  const [reports, setReports] = useState<Record<string, any>>({});
+  const [timetableEntries, setTimetableEntries] = useState<any[]>([]);
 
   const uid = user?.uid || "";
 
@@ -48,6 +53,34 @@ const Dashboard = () => {
     return () => unsub();
   }, [uid]);
 
+  // Sync reports from Firebase
+  useEffect(() => {
+    if (!uid) return;
+    const reportsRef = ref(db, `users/${uid}/reports`);
+    const unsub = onValue(reportsRef, (snap) => {
+      setReports(snap.val() || {});
+    });
+    return () => unsub();
+  }, [uid]);
+
+  // Sync timetable for period tracker
+  useEffect(() => {
+    if (!uid) return;
+    const ttRef = ref(db, `users/${uid}/timetable`);
+    const unsub = onValue(ttRef, (snap) => {
+      const data = snap.val();
+      setTimetableEntries(data ? Object.values(data) : []);
+    });
+    return () => unsub();
+  }, [uid]);
+
+  const updateReports = (newReports: Record<string, any>) => {
+    setReports(newReports);
+    if (uid) {
+      set(ref(db, `users/${uid}/reports`), newReports);
+    }
+  };
+
   const updateStudents = (newStudents: Student[]) => {
     setStudents(newStudents);
     if (uid) {
@@ -64,10 +97,12 @@ const Dashboard = () => {
 
   const tabs: { key: Tab; label: string; icon: typeof Users }[] = [
     { key: "students", label: "Students", icon: Users },
-    { key: "picker", label: "Picker", icon: Shuffle },
     { key: "marks", label: "Marks", icon: BarChart3 },
+    { key: "reports", label: "Reports", icon: ClipboardList },
     { key: "timetable", label: "Schedule", icon: Calendar },
+    { key: "qpaper", label: "Q-Paper", icon: FileQuestion },
     { key: "alerts", label: "Alerts", icon: Bell },
+    { key: "picker", label: "Picker", icon: Shuffle },
     { key: "ai", label: "Nexus", icon: Bot },
   ];
 
@@ -98,6 +133,11 @@ const Dashboard = () => {
       {/* Alert Banner */}
       <div className="px-5 pb-2">
         <AlertBanner />
+      </div>
+
+      {/* Period Tracker */}
+      <div className="px-5 pb-2">
+        <PeriodTracker timetable={timetableEntries} />
       </div>
 
       {/* Stats */}
@@ -135,8 +175,10 @@ const Dashboard = () => {
             {active === "students" && <StudentManager students={students} setStudents={updateStudents} />}
             {active === "picker" && <RandomPicker students={students} />}
             {active === "marks" && <MarksTracker students={students} setStudents={updateStudents} />}
+            {active === "reports" && <StudentReports students={students} setStudents={updateStudents} reports={reports} setReports={updateReports} />}
             {active === "timetable" && <TimetableManager uid={uid} email={user?.email || ""} />}
             {active === "alerts" && <AlertsManager email={user?.email || ""} />}
+            {active === "qpaper" && <QuestionPaperGenerator />}
             {active === "ai" && <AIAssistant />}
           </motion.div>
         </AnimatePresence>
@@ -145,7 +187,7 @@ const Dashboard = () => {
       {/* Bottom Tab Bar */}
       <div className="fixed bottom-0 left-0 right-0 z-50">
         <div className="max-w-lg mx-auto px-4 pb-4">
-          <div className="glass-card flex items-center justify-around p-1.5">
+          <div className="glass-card flex items-center overflow-x-auto no-scrollbar p-1.5 gap-0.5">
             {tabs.map(tab => {
               const Icon = tab.icon;
               const isActive = active === tab.key;
@@ -153,7 +195,7 @@ const Dashboard = () => {
                 <button
                   key={tab.key}
                   onClick={() => setActive(tab.key)}
-                  className={`flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl transition-all ${
+                  className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all flex-shrink-0 ${
                     isActive ? "tab-active" : "text-muted-foreground"
                   }`}
                 >
