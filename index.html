@@ -1,26 +1,599 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- TODO: Set the document title to the name of your application -->
-    <title>Lovable App</title>
-    <meta name="description" content="Lovable Generated Project" />
-    <meta name="author" content="Lovable" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>TeachMate — AI Classroom Assistant</title>
+  <meta name="description" content="TeachMate is a mobile AI-powered classroom assistant that helps teachers manage students, track performance, and handle schedules." />
+  <meta property="og:title" content="TeachMate — AI Classroom Assistant" />
+  <meta property="og:description" content="Manage students, track attendance and marks, pick random students, and get AI teaching help — all from your phone." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/lucide-static@latest/font/lucide.css" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <!-- TODO: Update og:title to match your application name -->
-    <meta property="og:title" content="Lovable App" />
-    <meta property="og:description" content="Lovable Generated Project" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    :root {
+      --bg: hsl(230,60%,8%);
+      --fg: hsl(210,40%,96%);
+      --card: hsl(230,40%,14%);
+      --primary: hsl(190,90%,50%);
+      --primary-fg: hsl(230,60%,8%);
+      --secondary: hsl(260,60%,55%);
+      --muted: hsl(230,30%,20%);
+      --muted-fg: hsl(215,20%,60%);
+      --accent: hsl(280,70%,60%);
+      --border: hsla(210,40%,96%,0.1);
+      --destructive: hsl(0,84%,60%);
+      --success: hsl(142,70%,45%);
+      --warning: hsl(38,92%,50%);
+      --glass-bg: hsla(230,40%,18%,0.6);
+      --glass-light: hsla(230,40%,22%,0.4);
+      --glass-shadow: 0 8px 32px hsla(230,60%,4%,0.4);
+      --radius: 1rem;
+    }
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@Lovable" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-  </head>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, hsl(230,60%,8%) 0%, hsl(260,50%,12%) 50%, hsl(230,50%,10%) 100%);
+      color: var(--fg);
+      min-height: 100vh;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      overflow-x: hidden;
+    }
 
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+    .glass { background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border); box-shadow: var(--glass-shadow); border-radius: var(--radius); }
+    .glass-light { background: var(--glass-light); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: var(--radius); }
+    .gradient-text { background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .btn-primary { background: linear-gradient(135deg, hsl(190,90%,50%), hsl(200,90%,45%)); color: var(--primary-fg); font-weight: 700; border-radius: var(--radius); border: none; cursor: pointer; box-shadow: 0 4px 15px hsla(190,90%,50%,0.3); transition: transform 0.15s; }
+    .btn-primary:active { transform: scale(0.97); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-google { background: hsla(210,40%,96%,0.1); border: 1px solid var(--border); color: var(--fg); font-weight: 600; border-radius: var(--radius); backdrop-filter: blur(10px); cursor: pointer; transition: all 0.15s; }
+    .btn-google:active { transform: scale(0.97); background: hsla(210,40%,96%,0.15); }
+
+    input[type="text"], input[type="email"], input[type="password"], input[type="number"] {
+      background: hsla(230,30%,20%,0.5); border: 1px solid var(--border); color: var(--fg); border-radius: 0.75rem; font-size: 14px; font-family: inherit; outline: none; transition: box-shadow 0.2s;
+    }
+    input:focus { box-shadow: 0 0 0 2px hsla(190,90%,50%,0.4); }
+    input::placeholder { color: var(--muted-fg); }
+
+    .tab-active { background: linear-gradient(135deg, hsl(190,90%,50%), hsl(200,90%,45%)); color: var(--primary-fg); font-weight: 700; box-shadow: 0 2px 10px hsla(190,90%,50%,0.3); }
+
+    /* Animations */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+    .fade-in { animation: fadeIn 0.35s ease forwards; }
+    .spinner { width: 32px; height: 32px; border: 2px solid var(--primary); border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
+
+    /* Screens */
+    .screen { display: none; }
+    .screen.active { display: flex; flex-direction: column; }
+
+    /* Lucide icon sizing */
+    .icon { width: 20px; height: 20px; }
+    .icon-sm { width: 16px; height: 16px; }
+    .icon-lg { width: 32px; height: 32px; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: hsla(210,40%,96%,0.1); border-radius: 2px; }
+
+    /* SVG icons inline */
+    .svg-icon { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+
+  <!-- Loading Screen -->
+  <div id="loading-screen" class="screen active" style="min-height:100vh;align-items:center;justify-content:center;">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Login Screen -->
+  <div id="login-screen" class="screen" style="min-height:100vh;align-items:center;justify-content:center;padding:24px;">
+    <div class="glass" style="padding:32px;width:100%;max-width:380px;" class="fade-in">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div class="btn-primary" style="width:64px;height:64px;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        </div>
+        <h1 class="gradient-text" style="font-size:24px;font-weight:800;">TeachMate</h1>
+        <p style="color:var(--muted-fg);font-size:14px;margin-top:4px;">Your AI Classroom Assistant</p>
+      </div>
+
+      <button id="google-btn" class="btn-google" style="width:100%;padding:14px;display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px;font-size:14px;">
+        <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <div style="flex:1;height:1px;background:var(--border);"></div>
+        <span style="color:var(--muted-fg);font-size:12px;">or</span>
+        <div style="flex:1;height:1px;background:var(--border);"></div>
+      </div>
+
+      <form id="email-form" style="display:flex;flex-direction:column;gap:12px;">
+        <div style="position:relative;">
+          <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted-fg);" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          <input id="email-input" type="email" placeholder="Email" required style="width:100%;padding:12px 16px 12px 40px;" />
+        </div>
+        <div style="position:relative;">
+          <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted-fg);" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input id="pw-input" type="password" placeholder="Password" required style="width:100%;padding:12px 40px 12px 40px;" />
+          <button type="button" id="toggle-pw" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted-fg);cursor:pointer;">
+            <svg id="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div id="login-error" style="color:var(--destructive);font-size:12px;text-align:center;display:none;"></div>
+        <button type="submit" id="submit-btn" class="btn-primary" style="width:100%;padding:14px;font-size:14px;">Sign In</button>
+      </form>
+
+      <p style="text-align:center;font-size:12px;color:var(--muted-fg);margin-top:16px;">
+        <span id="toggle-mode-text">Don't have an account?</span>
+        <button id="toggle-mode" style="background:none;border:none;color:var(--primary);font-weight:600;cursor:pointer;font-size:12px;font-family:inherit;margin-left:4px;">Sign Up</button>
+      </p>
+    </div>
+  </div>
+
+  <!-- Dashboard Screen -->
+  <div id="dashboard-screen" class="screen" style="min-height:100vh;max-width:480px;margin:0 auto;">
+    <!-- Header -->
+    <div style="padding:24px 20px 12px;display:flex;align-items:center;justify-content:space-between;" class="fade-in">
+      <div>
+        <p style="font-size:12px;color:var(--muted-fg);">Welcome back,</p>
+        <h1 id="user-name" style="font-size:20px;font-weight:700;">Teacher 👋</h1>
+      </div>
+      <button id="logout-btn" class="glass-light" style="padding:10px;border-radius:12px;border:none;color:var(--muted-fg);cursor:pointer;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div style="padding:0 20px 12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;" class="fade-in">
+      <div class="glass-light" style="padding:12px;text-align:center;">
+        <p id="stat-total" style="font-size:20px;font-weight:700;color:var(--primary);">0</p>
+        <p style="font-size:10px;color:var(--muted-fg);">Students</p>
+      </div>
+      <div class="glass-light" style="padding:12px;text-align:center;">
+        <p id="stat-present" style="font-size:20px;font-weight:700;color:var(--success);">0</p>
+        <p style="font-size:10px;color:var(--muted-fg);">Present</p>
+      </div>
+      <div class="glass-light" style="padding:12px;text-align:center;">
+        <p id="stat-avg" style="font-size:20px;font-weight:700;color:var(--accent);">0</p>
+        <p style="font-size:10px;color:var(--muted-fg);">Avg Marks</p>
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div id="content-area" style="flex:1;padding:0 20px;padding-bottom:100px;overflow-y:auto;"></div>
+
+    <!-- Bottom Tab Bar -->
+    <div style="position:fixed;bottom:0;left:0;right:0;z-index:50;">
+      <div style="max-width:480px;margin:0 auto;padding:0 16px 16px;">
+        <div class="glass" style="display:flex;align-items:center;justify-content:space-around;padding:8px;">
+          <button class="tab-btn tab-active" data-tab="students" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 16px;border-radius:12px;border:none;cursor:pointer;font-family:inherit;font-size:10px;font-weight:500;background:none;color:var(--muted-fg);transition:all 0.2s;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Students
+          </button>
+          <button class="tab-btn" data-tab="picker" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 16px;border-radius:12px;border:none;cursor:pointer;font-family:inherit;font-size:10px;font-weight:500;background:none;color:var(--muted-fg);transition:all 0.2s;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/></svg>
+            Picker
+          </button>
+          <button class="tab-btn" data-tab="marks" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 16px;border-radius:12px;border:none;cursor:pointer;font-family:inherit;font-size:10px;font-weight:500;background:none;color:var(--muted-fg);transition:all 0.2s;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 16l4-8 4 4 4-8"/></svg>
+            Marks
+          </button>
+          <button class="tab-btn" data-tab="ai" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 16px;border-radius:12px;border:none;cursor:pointer;font-family:inherit;font-size:10px;font-weight:500;background:none;color:var(--muted-fg);transition:all 0.2s;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+            Nexus
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+  <script>
+    // ====== Firebase Init ======
+    const firebaseConfig = {
+      apiKey: "AIzaSyBg4lX_8ZMKSjdbzdV5dI1_dZOipJ56MK0",
+      authDomain: "teachmate12.firebaseapp.com",
+      databaseURL: "https://teachmate12-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "teachmate12",
+      storageBucket: "teachmate12.firebasestorage.app",
+      messagingSenderId: "216135007161",
+      appId: "1:216135007161:web:d00a41bfca86b776e41468",
+      measurementId: "G-5K8CPJRNDJ"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+    const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+    // ====== State ======
+    let students = [];
+    let currentTab = "students";
+    let isSignUp = false;
+    let pickerUsed = new Set();
+    let pickedStudent = null;
+    let spinning = false;
+    let aiMessages = [{ id: "w", role: "ai", text: "Hi! I'm Nexus AI, your teaching assistant. Ask me anything — explain topics, generate quiz ideas, or get activity suggestions! 🎓" }];
+    let currentUser = null;
+    let dbRef = null;
+
+    // ====== Screens ======
+    const $ = id => document.getElementById(id);
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      $(id).classList.add('active');
+    }
+
+    // ====== Auth ======
+    auth.onAuthStateChanged(user => {
+      currentUser = user;
+      if (user) {
+        const name = user.displayName?.split(" ")[0] || user.email?.split("@")[0] || "Teacher";
+        $('user-name').textContent = name + " 👋";
+        showScreen('dashboard-screen');
+        // Setup Firebase DB listener
+        dbRef = db.ref('users/' + user.uid + '/students');
+        dbRef.on('value', snap => {
+          const data = snap.val();
+          students = data ? Object.values(data) : [];
+          updateStats();
+          renderTab();
+        });
+      } else {
+        showScreen('login-screen');
+        if (dbRef) { dbRef.off(); dbRef = null; }
+        students = [];
+      }
+    });
+
+    // Login handlers
+    $('google-btn').onclick = async () => {
+      try { await auth.signInWithPopup(googleProvider); }
+      catch (e) { showLoginError(e.message); }
+    };
+
+    $('email-form').onsubmit = async (e) => {
+      e.preventDefault();
+      const email = $('email-input').value;
+      const pw = $('pw-input').value;
+      $('login-error').style.display = 'none';
+      $('submit-btn').disabled = true;
+      $('submit-btn').textContent = 'Please wait...';
+      try {
+        if (isSignUp) await auth.createUserWithEmailAndPassword(email, pw);
+        else await auth.signInWithEmailAndPassword(email, pw);
+      } catch (e) {
+        showLoginError(e.message.replace('Firebase: ', ''));
+      }
+      $('submit-btn').disabled = false;
+      $('submit-btn').textContent = isSignUp ? 'Sign Up' : 'Sign In';
+    };
+
+    function showLoginError(msg) {
+      $('login-error').textContent = msg;
+      $('login-error').style.display = 'block';
+    }
+
+    $('toggle-mode').onclick = () => {
+      isSignUp = !isSignUp;
+      $('submit-btn').textContent = isSignUp ? 'Sign Up' : 'Sign In';
+      $('toggle-mode').textContent = isSignUp ? 'Sign In' : 'Sign Up';
+      $('toggle-mode-text').textContent = isSignUp ? 'Already have an account?' : "Don't have an account?";
+      $('login-error').style.display = 'none';
+    };
+
+    $('toggle-pw').onclick = () => {
+      const inp = $('pw-input');
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+    };
+
+    $('logout-btn').onclick = () => auth.signOut();
+
+    // ====== Firebase DB Sync ======
+    function saveStudents() {
+      if (!currentUser) return;
+      const ref = db.ref('users/' + currentUser.uid + '/students');
+      const obj = {};
+      students.forEach(s => { obj[s.id] = s; });
+      ref.set(obj);
+    }
+
+    // ====== Stats ======
+    function updateStats() {
+      $('stat-total').textContent = students.length;
+      $('stat-present').textContent = students.filter(s => s.present).length;
+      const avg = students.length ? (students.reduce((a, s) => a + s.marks, 0) / students.length).toFixed(0) : '0';
+      $('stat-avg').textContent = avg;
+    }
+
+    // ====== Tabs ======
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentTab = btn.dataset.tab;
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          b.classList.remove('tab-active');
+          b.style.color = 'var(--muted-fg)';
+          b.style.background = 'none';
+          b.style.fontWeight = '500';
+          b.style.boxShadow = 'none';
+        });
+        btn.classList.add('tab-active');
+        renderTab();
+      });
+    });
+
+    // ====== Render Tabs ======
+    function renderTab() {
+      const area = $('content-area');
+      switch (currentTab) {
+        case 'students': renderStudents(area); break;
+        case 'picker': renderPicker(area); break;
+        case 'marks': renderMarks(area); break;
+        case 'ai': renderAI(area); break;
+      }
+    }
+
+    // ====== Students Tab ======
+    function renderStudents(area) {
+      const present = students.filter(s => s.present).length;
+      area.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;" class="fade-in">
+          <div>
+            <h2 style="font-size:18px;font-weight:700;">Students</h2>
+            <p style="font-size:12px;color:var(--muted-fg);">${present}/${students.length} present</p>
+          </div>
+          <button id="add-student-btn" class="btn-primary" style="padding:10px;border-radius:12px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+          </button>
+        </div>
+        <div id="add-form" style="display:none;margin-bottom:12px;" class="glass-light" >
+          <div style="padding:16px;display:flex;gap:8px;">
+            <input id="new-student-name" type="text" placeholder="Student name" style="flex:1;padding:8px 12px;" />
+            <button id="confirm-add" class="btn-primary" style="padding:8px 16px;font-size:14px;">Add</button>
+            <button id="cancel-add" style="padding:8px;background:none;border:none;color:var(--muted-fg);cursor:pointer;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+          </div>
+        </div>
+        <div id="student-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+        ${students.length === 0 ? '<div style="text-align:center;padding:48px 0;color:var(--muted-fg);font-size:14px;">No students yet. Tap + to add one.</div>' : ''}
+      `;
+
+      const list = document.getElementById('student-list');
+      students.forEach((s, i) => {
+        const div = document.createElement('div');
+        div.className = 'glass-light fade-in';
+        div.style.cssText = `padding:12px;display:flex;align-items:center;gap:12px;animation-delay:${i*30}ms;`;
+        div.innerHTML = `
+          <button class="att-btn" data-id="${s.id}" style="padding:8px;border-radius:8px;border:none;cursor:pointer;transition:all 0.2s;background:${s.present ? 'hsla(142,70%,45%,0.2)' : 'hsla(0,84%,60%,0.2)'};color:${s.present ? 'var(--success)' : 'var(--destructive)'};">
+            ${s.present
+              ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>'
+              : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" x2="22" y1="8" y2="13"/><line x1="22" x2="17" y1="8" y2="13"/></svg>'
+            }
+          </button>
+          <span style="flex:1;font-size:14px;font-weight:500;">${s.name}</span>
+          <span style="font-size:12px;font-weight:600;padding:4px 8px;border-radius:6px;background:${s.present ? 'hsla(142,70%,45%,0.2)' : 'hsla(0,84%,60%,0.2)'};color:${s.present ? 'var(--success)' : 'var(--destructive)'};">${s.present ? 'Present' : 'Absent'}</span>
+          <button class="del-btn" data-id="${s.id}" style="padding:6px;background:none;border:none;color:var(--muted-fg);cursor:pointer;transition:color 0.2s;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+          </button>
+        `;
+        list.appendChild(div);
+      });
+
+      // Event listeners
+      document.getElementById('add-student-btn').onclick = () => {
+        document.getElementById('add-form').style.display = 'block';
+        document.getElementById('new-student-name').focus();
+      };
+      document.getElementById('cancel-add').onclick = () => {
+        document.getElementById('add-form').style.display = 'none';
+      };
+      document.getElementById('confirm-add').onclick = addStudent;
+      document.getElementById('new-student-name').onkeydown = e => { if (e.key === 'Enter') addStudent(); };
+
+      list.querySelectorAll('.att-btn').forEach(b => b.onclick = () => toggleAttendance(b.dataset.id));
+      list.querySelectorAll('.del-btn').forEach(b => b.onclick = () => removeStudent(b.dataset.id));
+    }
+
+    function addStudent() {
+      const inp = document.getElementById('new-student-name');
+      const name = inp.value.trim();
+      if (!name) return;
+      students.push({ id: Date.now().toString(), name, present: false, marks: 0 });
+      saveStudents();
+      inp.value = '';
+      document.getElementById('add-form').style.display = 'none';
+    }
+
+    function toggleAttendance(id) {
+      students = students.map(s => s.id === id ? { ...s, present: !s.present } : s);
+      saveStudents();
+    }
+
+    function removeStudent(id) {
+      students = students.filter(s => s.id !== id);
+      saveStudents();
+    }
+
+    // ====== Picker Tab ======
+    function renderPicker(area) {
+      const available = students.filter(s => !pickerUsed.has(s.id)).length;
+      area.innerHTML = `
+        <div style="text-align:center;margin-bottom:16px;" class="fade-in">
+          <h2 style="font-size:18px;font-weight:700;">Random Picker</h2>
+          <p style="font-size:12px;color:var(--muted-fg);">${available} of ${students.length} remaining</p>
+        </div>
+        <div class="glass" style="padding:32px;text-align:center;min-height:160px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;" class="fade-in">
+          <div id="picker-display">
+            ${pickedStudent
+              ? `<p style="font-size:28px;font-weight:700;" class="gradient-text">${pickedStudent.name}</p><p style="font-size:12px;color:var(--muted-fg);margin-top:8px;">🎯 Selected!</p>`
+              : `<p style="color:var(--muted-fg);font-size:14px;">${students.length === 0 ? 'Add students first' : 'Tap shuffle to pick a student'}</p>`
+            }
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;margin-bottom:24px;" class="fade-in">
+          <button id="shuffle-btn" class="btn-primary" style="flex:1;padding:14px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;" ${available === 0 || students.length === 0 ? 'disabled' : ''}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/></svg>
+            Shuffle
+          </button>
+          <button id="reset-picker" class="glass-light" style="padding:14px 16px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;border:none;color:var(--fg);cursor:pointer;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            Reset
+          </button>
+        </div>
+        ${pickerUsed.size > 0 ? `
+          <div class="glass-light fade-in" style="padding:16px;">
+            <p style="font-size:12px;color:var(--muted-fg);margin-bottom:8px;">Already picked:</p>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              ${students.filter(s => pickerUsed.has(s.id)).map(s => `<span style="font-size:12px;background:hsla(190,90%,50%,0.2);color:var(--primary);padding:4px 8px;border-radius:6px;">${s.name}</span>`).join('')}
+            </div>
+          </div>
+        ` : ''}
+      `;
+
+      document.getElementById('shuffle-btn').onclick = () => {
+        if (spinning) return;
+        const avail = students.filter(s => !pickerUsed.has(s.id));
+        if (avail.length === 0) return;
+        spinning = true;
+        const display = document.getElementById('picker-display');
+        let count = 0;
+        const interval = setInterval(() => {
+          const rand = students[Math.floor(Math.random() * students.length)];
+          display.innerHTML = `<p style="font-size:28px;font-weight:700;color:var(--muted-fg);">${rand.name}</p>`;
+          count++;
+          if (count > 12) {
+            clearInterval(interval);
+            const final = avail[Math.floor(Math.random() * avail.length)];
+            pickedStudent = final;
+            pickerUsed.add(final.id);
+            spinning = false;
+            renderPicker(area);
+          }
+        }, 80);
+      };
+
+      document.getElementById('reset-picker').onclick = () => {
+        pickerUsed = new Set();
+        pickedStudent = null;
+        renderPicker(area);
+      };
+    }
+
+    // ====== Marks Tab ======
+    function renderMarks(area) {
+      const avg = students.length ? (students.reduce((a, s) => a + s.marks, 0) / students.length).toFixed(1) : '0';
+      area.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;" class="fade-in">
+          <div>
+            <h2 style="font-size:18px;font-weight:700;">Marks</h2>
+            <p style="font-size:12px;color:var(--muted-fg);">Class average: ${avg}</p>
+          </div>
+        </div>
+        <div id="marks-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+        ${students.length === 0 ? '<div style="text-align:center;padding:48px 0;color:var(--muted-fg);font-size:14px;">Add students first to track marks.</div>' : ''}
+      `;
+
+      const list = document.getElementById('marks-list');
+      students.forEach((s, i) => {
+        const color = s.marks >= 70 ? 'hsl(142,70%,45%)' : s.marks >= 40 ? 'hsl(38,92%,50%)' : 'hsl(0,84%,60%)';
+        const div = document.createElement('div');
+        div.className = 'glass-light fade-in';
+        div.style.cssText = `padding:12px;display:flex;align-items:center;gap:12px;animation-delay:${i*30}ms;`;
+        div.innerHTML = `
+          <span style="flex:1;font-size:14px;font-weight:500;">${s.name}</span>
+          <input type="number" min="0" max="100" value="${s.marks}" data-id="${s.id}" class="marks-input" style="width:64px;padding:6px 8px;text-align:center;" />
+          <div style="width:64px;">
+            <div style="height:6px;border-radius:3px;background:var(--muted);overflow:hidden;">
+              <div style="height:100%;border-radius:3px;background:${color};width:${s.marks}%;transition:width 0.3s;"></div>
+            </div>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+
+      list.querySelectorAll('.marks-input').forEach(inp => {
+        inp.onchange = () => {
+          const val = Math.max(0, Math.min(100, Number(inp.value) || 0));
+          students = students.map(s => s.id === inp.dataset.id ? { ...s, marks: val } : s);
+          saveStudents();
+        };
+      });
+    }
+
+    // ====== AI Tab ======
+    function renderAI(area) {
+      area.innerHTML = `
+        <div style="display:flex;flex-direction:column;height:calc(100vh - 220px);">
+          <div style="text-align:center;margin-bottom:12px;" class="fade-in">
+            <h2 style="font-size:18px;font-weight:700;" class="gradient-text">Nexus AI</h2>
+            <p style="font-size:12px;color:var(--muted-fg);">Your AI Teaching Assistant</p>
+          </div>
+          <div id="ai-messages" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-bottom:16px;padding-right:4px;"></div>
+          <div style="display:flex;gap:8px;padding-top:8px;">
+            <input id="ai-input" type="text" placeholder="Ask Nexus AI anything..." style="flex:1;padding:12px 16px;" />
+            <button id="ai-send" class="btn-primary" style="padding:12px;border-radius:12px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg>
+            </button>
+          </div>
+        </div>
+      `;
+
+      renderAIMessages();
+
+      const inp = document.getElementById('ai-input');
+      document.getElementById('ai-send').onclick = () => sendAIMsg(inp);
+      inp.onkeydown = e => { if (e.key === 'Enter') sendAIMsg(inp); };
+    }
+
+    function renderAIMessages() {
+      const container = document.getElementById('ai-messages');
+      if (!container) return;
+      container.innerHTML = aiMessages.map(m => `
+        <div style="display:flex;gap:8px;${m.role === 'user' ? 'justify-content:flex-end' : 'justify-content:flex-start'};">
+          ${m.role === 'ai' ? '<div style="width:28px;height:28px;border-radius:8px;background:hsla(190,90%,50%,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></div>' : ''}
+          <div style="max-width:80%;padding:12px;border-radius:16px;font-size:14px;line-height:1.5;${
+            m.role === 'user'
+              ? 'background:linear-gradient(135deg,hsl(190,90%,50%),hsl(200,90%,45%));color:var(--primary-fg);border-bottom-right-radius:4px;font-weight:600;'
+              : 'background:var(--glass-light);border:1px solid var(--border);border-bottom-left-radius:4px;'
+          }">${m.text}</div>
+          ${m.role === 'user' ? '<div style="width:28px;height:28px;border-radius:8px;background:hsla(280,70%,60%,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>' : ''}
+        </div>
+      `).join('');
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function sendAIMsg(inp) {
+      const text = inp.value.trim();
+      if (!text) return;
+      aiMessages.push({ id: Date.now().toString(), role: 'user', text });
+      inp.value = '';
+      renderAIMessages();
+
+      // Simulated AI response
+      setTimeout(() => {
+        aiMessages.push({
+          id: (Date.now() + 1).toString(),
+          role: 'ai',
+          text: "That's a great question! Here's a simple explanation you can use in class:\n\nI'd recommend breaking this topic into 3 key points for your students. Would you like me to create a quiz on this? 📝"
+        });
+        renderAIMessages();
+      }, 1200);
+    }
+
+    // Initial render
+    renderTab();
+  </script>
+</body>
 </html>
