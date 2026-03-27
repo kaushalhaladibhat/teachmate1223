@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
-import { Users, Shuffle, BarChart3, Bot, LogOut, Calendar, Bell, Shield } from "lucide-react";
+import { Users, Shuffle, BarChart3, Bot, LogOut, Calendar, Bell, Shield, ClipboardList, FileQuestion } from "lucide-react";
 import { ref, set, onValue } from "firebase/database";
 import { db } from "@/lib/firebase";
 import { isAdmin } from "@/lib/roles";
@@ -12,8 +12,11 @@ import AIAssistant from "@/components/AIAssistant";
 import TimetableManager from "@/components/TimetableManager";
 import AlertsManager from "@/components/AlertsManager";
 import AlertBanner from "@/components/AlertBanner";
+import PeriodTracker from "@/components/PeriodTracker";
+import StudentReports from "@/components/StudentReports";
+import QuestionPaperGenerator from "@/components/QuestionPaperGenerator";
 
-type Tab = "students" | "picker" | "marks" | "ai" | "timetable" | "alerts";
+type Tab = "students" | "picker" | "marks" | "ai" | "timetable" | "alerts" | "reports" | "qpaper";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
