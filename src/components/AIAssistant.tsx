@@ -2,11 +2,22 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Bot, User } from "lucide-react";
 
+const GEMINI_API_KEY = "AIzaSyB8_8qMsTNT4005TBBnBTmQQo1l8jtEAHU";
+
 interface Message {
   id: string;
   role: "user" | "ai";
   text: string;
 }
+
+const SYSTEM_PROMPT = `You are Nexus AI, a friendly and knowledgeable teaching assistant built into the TeachMate app. You help school teachers with:
+- Explaining topics in simple, student-friendly language
+- Generating quiz questions on any subject
+- Suggesting classroom activities and engagement strategies
+- Helping with lesson planning
+- Answering academic questions across subjects
+
+Keep responses concise, practical, and teacher-focused. Use emojis sparingly for friendliness. Format responses with bullet points or numbered lists when helpful.`;
 
 const AIAssistant = () => {
   const [messages, setMessages] = useState<Message[]>([
@@ -27,36 +38,48 @@ const AIAssistant = () => {
     setInput("");
     setLoading(true);
 
-    // Simulate AI response (replace with actual API later)
-    setTimeout(() => {
-      const responses: Record<string, string> = {
-        default: "That's a great question! Here's a simple explanation you can use in class:\n\nI'd recommend breaking this topic down into 3 key points for your students. Would you like me to create a quiz on this topic? 📝"
-      };
+    try {
+      const history = [...messages.filter(m => m.id !== "welcome"), userMsg].map(m => ({
+        role: m.role === "user" ? "user" : "model",
+        parts: [{ text: m.text }]
+      }));
 
-      const aiMsg: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "ai",
-        text: responses.default,
-      };
-      setMessages(prev => [...prev, aiMsg]);
-      setLoading(false);
-    }, 1200);
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+            contents: history,
+          })
+        }
+      );
+
+      const data = await response.json();
+      const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't process that. Please try again.";
+
+      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: "ai", text: aiText }]);
+    } catch {
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 1).toString(), role: "ai",
+        text: "Sorry, something went wrong. Please check your connection and try again."
+      }]);
+    }
+    setLoading(false);
   };
 
   return (
     <div className="flex flex-col h-[calc(100vh-220px)]">
       <div className="text-center mb-3">
         <h2 className="text-lg font-bold gradient-text">Nexus AI</h2>
-        <p className="text-xs text-muted-foreground">Your AI Teaching Assistant</p>
+        <p className="text-xs text-muted-foreground">Powered by Gemini · Your AI Teaching Assistant</p>
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-3 pb-4 pr-1">
         <AnimatePresence>
           {messages.map(m => (
-            <motion.div
-              key={m.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
+            <motion.div key={m.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
               className={`flex gap-2 ${m.role === "user" ? "justify-end" : "justify-start"}`}
             >
               {m.role === "ai" && (
@@ -64,7 +87,7 @@ const AIAssistant = () => {
                   <Bot className="w-4 h-4 text-primary" />
                 </div>
               )}
-              <div className={`max-w-[80%] p-3 rounded-2xl text-sm leading-relaxed ${
+              <div className={`max-w-[80%] p-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
                 m.role === "user"
                   ? "btn-primary text-primary-foreground rounded-br-md"
                   : "glass-card-light text-foreground rounded-bl-md"
@@ -98,18 +121,12 @@ const AIAssistant = () => {
       </div>
 
       <div className="flex gap-2 pt-2">
-        <input
-          value={input}
-          onChange={e => setInput(e.target.value)}
+        <input value={input} onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === "Enter" && sendMessage()}
           placeholder="Ask Nexus AI anything..."
           className="flex-1 py-3 px-4 rounded-xl bg-muted/50 border border-border text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
         />
-        <button
-          onClick={sendMessage}
-          disabled={!input.trim() || loading}
-          className="btn-primary p-3 rounded-xl disabled:opacity-40"
-        >
+        <button onClick={sendMessage} disabled={!input.trim() || loading} className="btn-primary p-3 rounded-xl disabled:opacity-40">
           <Send className="w-5 h-5" />
         </button>
       </div>
