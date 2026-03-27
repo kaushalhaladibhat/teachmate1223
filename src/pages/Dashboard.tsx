@@ -187,7 +187,7 @@ const Dashboard = () => {
       {/* Bottom Tab Bar */}
       <div className="fixed bottom-0 left-0 right-0 z-50">
         <div className="max-w-lg mx-auto px-4 pb-4">
-          <div className="glass-card flex items-center justify-around p-1.5">
+          <div className="glass-card flex items-center overflow-x-auto no-scrollbar p-1.5 gap-0.5">
             {tabs.map(tab => {
               const Icon = tab.icon;
               const isActive = active === tab.key;
