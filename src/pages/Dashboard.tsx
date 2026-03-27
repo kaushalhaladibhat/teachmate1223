@@ -147,8 +147,10 @@ const Dashboard = () => {
             {active === "students" && <StudentManager students={students} setStudents={updateStudents} />}
             {active === "picker" && <RandomPicker students={students} />}
             {active === "marks" && <MarksTracker students={students} setStudents={updateStudents} />}
+            {active === "reports" && <StudentReports students={students} setStudents={updateStudents} reports={reports} setReports={updateReports} />}
             {active === "timetable" && <TimetableManager uid={uid} email={user?.email || ""} />}
             {active === "alerts" && <AlertsManager email={user?.email || ""} />}
+            {active === "qpaper" && <QuestionPaperGenerator />}
             {active === "ai" && <AIAssistant />}
           </motion.div>
         </AnimatePresence>
