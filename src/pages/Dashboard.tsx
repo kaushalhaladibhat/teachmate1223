@@ -69,10 +69,12 @@ const Dashboard = () => {
 
   const tabs: { key: Tab; label: string; icon: typeof Users }[] = [
     { key: "students", label: "Students", icon: Users },
-    { key: "picker", label: "Picker", icon: Shuffle },
     { key: "marks", label: "Marks", icon: BarChart3 },
+    { key: "reports", label: "Reports", icon: ClipboardList },
     { key: "timetable", label: "Schedule", icon: Calendar },
+    { key: "qpaper", label: "Q-Paper", icon: FileQuestion },
     { key: "alerts", label: "Alerts", icon: Bell },
+    { key: "picker", label: "Picker", icon: Shuffle },
     { key: "ai", label: "Nexus", icon: Bot },
   ];
 
