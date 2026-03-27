@@ -107,6 +107,11 @@ const Dashboard = () => {
         <AlertBanner />
       </div>
 
+      {/* Period Tracker */}
+      <div className="px-5 pb-2">
+        <PeriodTracker timetable={timetableEntries} />
+      </div>
+
       {/* Stats */}
       <div className="px-5 pb-3">
         <div className="grid grid-cols-3 gap-2">
