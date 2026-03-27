@@ -195,7 +195,7 @@ const Dashboard = () => {
                 <button
                   key={tab.key}
                   onClick={() => setActive(tab.key)}
-                  className={`flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl transition-all ${
+                  className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all flex-shrink-0 ${
                     isActive ? "tab-active" : "text-muted-foreground"
                   }`}
                 >
