@@ -1,34 +1,75 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
-import { Users, Shuffle, BarChart3, Bot, LogOut } from "lucide-react";
+import { Users, Shuffle, BarChart3, Bot, LogOut, Calendar, Bell, Shield } from "lucide-react";
+import { ref, set, onValue } from "firebase/database";
+import { db } from "@/lib/firebase";
+import { isAdmin } from "@/lib/roles";
 import StudentManager, { Student } from "@/components/StudentManager";
 import RandomPicker from "@/components/RandomPicker";
 import MarksTracker from "@/components/MarksTracker";
 import AIAssistant from "@/components/AIAssistant";
+import TimetableManager from "@/components/TimetableManager";
+import AlertsManager from "@/components/AlertsManager";
+import AlertBanner from "@/components/AlertBanner";
 
-type Tab = "students" | "picker" | "marks" | "ai";
-
-const tabs: { key: Tab; label: string; icon: typeof Users }[] = [
-  { key: "students", label: "Students", icon: Users },
-  { key: "picker", label: "Picker", icon: Shuffle },
-  { key: "marks", label: "Marks", icon: BarChart3 },
-  { key: "ai", label: "Nexus", icon: Bot },
-];
+type Tab = "students" | "picker" | "marks" | "ai" | "timetable" | "alerts";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
+  const admin = isAdmin(user?.email);
   const [active, setActive] = useState<Tab>("students");
-  const [students, setStudents] = useState<Student[]>(() => {
-    const saved = localStorage.getItem("teachmate_students");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [students, setStudents] = useState<Student[]>([]);
 
+  const uid = user?.uid || "";
+
+  // Sync students from Firebase
   useEffect(() => {
-    localStorage.setItem("teachmate_students", JSON.stringify(students));
-  }, [students]);
+    if (!uid) return;
+    const studentsRef = ref(db, `users/${uid}/students`);
+    const unsub = onValue(studentsRef, (snap) => {
+      const data = snap.val();
+      if (data) {
+        setStudents(Object.values(data));
+      } else {
+        // Migrate from localStorage if exists
+        const saved = localStorage.getItem("teachmate_students");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.length > 0) {
+            set(studentsRef, Object.fromEntries(parsed.map((s: Student) => [s.id, s])));
+          }
+          localStorage.removeItem("teachmate_students");
+        } else {
+          setStudents([]);
+        }
+      }
+    });
+    return () => unsub();
+  }, [uid]);
+
+  const updateStudents = (newStudents: Student[]) => {
+    setStudents(newStudents);
+    if (uid) {
+      const studentsRef = ref(db, `users/${uid}/students`);
+      if (newStudents.length > 0) {
+        set(studentsRef, Object.fromEntries(newStudents.map(s => [s.id, s])));
+      } else {
+        set(studentsRef, null);
+      }
+    }
+  };
 
   const firstName = user?.displayName?.split(" ")[0] || user?.email?.split("@")[0] || "Teacher";
+
+  const tabs: { key: Tab; label: string; icon: typeof Users }[] = [
+    { key: "students", label: "Students", icon: Users },
+    { key: "picker", label: "Picker", icon: Shuffle },
+    { key: "marks", label: "Marks", icon: BarChart3 },
+    { key: "timetable", label: "Schedule", icon: Calendar },
+    { key: "alerts", label: "Alerts", icon: Bell },
+    { key: "ai", label: "Nexus", icon: Bot },
+  ];
 
   return (
     <div className="min-h-screen flex flex-col max-w-lg mx-auto">
@@ -40,12 +81,24 @@ const Dashboard = () => {
       >
         <div>
           <p className="text-xs text-muted-foreground">Welcome back,</p>
-          <h1 className="text-xl font-bold text-foreground">{firstName} 👋</h1>
+          <h1 className="text-xl font-bold text-foreground">
+            {firstName} {admin ? "👑" : "👋"}
+          </h1>
+          {admin && (
+            <span className="inline-flex items-center gap-1 text-[10px] text-primary font-semibold mt-0.5">
+              <Shield className="w-3 h-3" /> Admin
+            </span>
+          )}
         </div>
         <button onClick={logout} className="glass-card-light p-2.5 rounded-xl text-muted-foreground">
           <LogOut className="w-4 h-4" />
         </button>
       </motion.div>
+
+      {/* Alert Banner */}
+      <div className="px-5 pb-2">
+        <AlertBanner />
+      </div>
 
       {/* Stats */}
       <div className="px-5 pb-3">
@@ -79,9 +132,11 @@ const Dashboard = () => {
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2 }}
           >
-            {active === "students" && <StudentManager students={students} setStudents={setStudents} />}
+            {active === "students" && <StudentManager students={students} setStudents={updateStudents} />}
             {active === "picker" && <RandomPicker students={students} />}
-            {active === "marks" && <MarksTracker students={students} setStudents={setStudents} />}
+            {active === "marks" && <MarksTracker students={students} setStudents={updateStudents} />}
+            {active === "timetable" && <TimetableManager uid={uid} email={user?.email || ""} />}
+            {active === "alerts" && <AlertsManager email={user?.email || ""} />}
             {active === "ai" && <AIAssistant />}
           </motion.div>
         </AnimatePresence>
@@ -90,7 +145,7 @@ const Dashboard = () => {
       {/* Bottom Tab Bar */}
       <div className="fixed bottom-0 left-0 right-0 z-50">
         <div className="max-w-lg mx-auto px-4 pb-4">
-          <div className="glass-card flex items-center justify-around p-2">
+          <div className="glass-card flex items-center justify-around p-1.5">
             {tabs.map(tab => {
               const Icon = tab.icon;
               const isActive = active === tab.key;
@@ -98,12 +153,12 @@ const Dashboard = () => {
                 <button
                   key={tab.key}
                   onClick={() => setActive(tab.key)}
-                  className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl transition-all ${
+                  className={`flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl transition-all ${
                     isActive ? "tab-active" : "text-muted-foreground"
                   }`}
                 >
-                  <Icon className="w-5 h-5" />
-                  <span className="text-[10px] font-medium">{tab.label}</span>
+                  <Icon className="w-4 h-4" />
+                  <span className="text-[9px] font-medium">{tab.label}</span>
                 </button>
               );
             })}
