@@ -23,6 +23,8 @@ const Dashboard = () => {
   const admin = isAdmin(user?.email);
   const [active, setActive] = useState<Tab>("students");
   const [students, setStudents] = useState<Student[]>([]);
+  const [reports, setReports] = useState<Record<string, any>>({});
+  const [timetableEntries, setTimetableEntries] = useState<any[]>([]);
 
   const uid = user?.uid || "";
 
