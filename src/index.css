@@ -136,4 +136,12 @@
     font-weight: 700;
     box-shadow: 0 2px 10px hsla(190, 90%, 50%, 0.3);
   }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
