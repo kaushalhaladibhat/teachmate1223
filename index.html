@@ -1,31 +1,937 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- TODO: Set the document title to the name of your application -->
-    <title>TeachMate</title>
-    <meta name="description" content="Nothing to see here mate!">
-    <meta name="author" content="Lovable" />
-
-    <!-- TODO: Update og:title to match your application name -->
-    
-    
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/c4609865-44e3-426e-a531-66ee6f2324ad?Expires=1774633015&amp;GoogleAccessId=go-api-on-aws%40gpt-engineer-390607.iam.gserviceaccount.com&amp;Signature=1ssKWxYaQRPTYMPEx51oJKTyOWtUI%2B8Kgo6pfo0EUaPguvVWDksCtYtUTNMfSpiiGXLiiEzxu1b1biTOWyU4q3Mi1MobCX0Kwf2gsCRHi1gksNreSOUnzHS9t4EcK6yDheK4OtKdObjh7hGHBh97GyXJCOcv5xVCiIt8n3MzFx3Yg%2Fv0H8%2BlVWQ%2B9z5QxhOBbL1hEzziz6Bbtmgi4nTS2t%2Fh%2FcbGqx7RSF9do2wT9%2BeRTsJ%2FI1gUiJzW%2BKCAo691pJTgncNet97d5TK4pw%2FALkqxBleDQ2dZzG8a488EgvPnKq7EI%2BPwnLry3L15XdXXMwWpG97BQ25X8gxJzUY9Cg%3D%3D">
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@Lovable" />
-    <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/c4609865-44e3-426e-a531-66ee6f2324ad?Expires=1774633015&amp;GoogleAccessId=go-api-on-aws%40gpt-engineer-390607.iam.gserviceaccount.com&amp;Signature=1ssKWxYaQRPTYMPEx51oJKTyOWtUI%2B8Kgo6pfo0EUaPguvVWDksCtYtUTNMfSpiiGXLiiEzxu1b1biTOWyU4q3Mi1MobCX0Kwf2gsCRHi1gksNreSOUnzHS9t4EcK6yDheK4OtKdObjh7hGHBh97GyXJCOcv5xVCiIt8n3MzFx3Yg%2Fv0H8%2BlVWQ%2B9z5QxhOBbL1hEzziz6Bbtmgi4nTS2t%2Fh%2FcbGqx7RSF9do2wT9%2BeRTsJ%2FI1gUiJzW%2BKCAo691pJTgncNet97d5TK4pw%2FALkqxBleDQ2dZzG8a488EgvPnKq7EI%2BPwnLry3L15XdXXMwWpG97BQ25X8gxJzUY9Cg%3D%3D">
-    <meta property="og:title" content="TeachMate">
-  <meta name="twitter:title" content="TeachMate">
-  <meta property="og:description" content="Nothing to see here mate!">
-  <meta name="twitter:description" content="Nothing to see here mate!">
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>TeachMate</title>
+<meta name="description" content="AI-powered classroom assistant for teachers"/>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root{
+--bg:hsl(230,60%,8%);--fg:hsl(210,40%,96%);--card:hsl(230,40%,14%);
+--primary:hsl(190,90%,50%);--primary-fg:hsl(230,60%,8%);
+--secondary:hsl(260,60%,55%);--accent:hsl(280,70%,60%);
+--muted:hsl(230,30%,20%);--muted-fg:hsl(215,20%,60%);
+--border:hsl(230,30%,22%);--destructive:hsl(0,84%,60%);
+--success:hsl(142,70%,45%);--warning:hsl(38,92%,50%);
+--glass-bg:hsla(230,40%,18%,0.6);--glass-border:hsla(210,40%,96%,0.1);
+--glass-shadow:0 8px 32px hsla(230,60%,4%,0.4);
+--radius:1rem;
+}
+*{margin:0;padding:0;box-sizing:border-box;border-color:var(--border)}
+body{background:linear-gradient(135deg,hsl(230,60%,8%),hsl(260,50%,12%),hsl(230,50%,10%));
+color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+min-height:100vh;-webkit-tap-highlight-color:transparent;user-select:none;overflow-x:hidden}
+.glass{background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+border:1px solid var(--glass-border);box-shadow:var(--glass-shadow);border-radius:var(--radius)}
+.glass-l{background:hsla(230,40%,22%,0.4);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+border:1px solid var(--glass-border);border-radius:var(--radius)}
+.btn{background:linear-gradient(135deg,hsl(190,90%,50%),hsl(200,90%,45%));color:var(--primary-fg);
+font-weight:700;border-radius:var(--radius);border:none;cursor:pointer;
+box-shadow:0 4px 15px hsla(190,90%,50%,0.3);transition:transform .2s}
+.btn:active{transform:scale(.97)}.btn:disabled{opacity:.4;cursor:default}
+.btn-g{background:hsla(210,40%,96%,0.1);border:1px solid var(--glass-border);color:var(--fg);
+font-weight:600;border-radius:var(--radius);backdrop-filter:blur(10px);cursor:pointer;transition:all .2s}
+.btn-g:active{transform:scale(.97);background:hsla(210,40%,96%,0.15)}
+.grad-text{background:linear-gradient(135deg,hsl(190,90%,50%),hsl(280,70%,60%));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.tab-act{background:linear-gradient(135deg,hsl(190,90%,50%),hsl(200,90%,45%));color:var(--primary-fg);
+font-weight:700;box-shadow:0 2px 10px hsla(190,90%,50%,0.3)}
+input,select,textarea{background:hsla(230,30%,20%,0.5);border:1px solid var(--border);color:var(--fg);
+border-radius:8px;padding:8px 12px;font-size:14px;outline:none;font-family:inherit}
+input:focus,select:focus,textarea:focus{box-shadow:0 0 0 2px var(--primary)}
+input::placeholder,textarea::placeholder{color:var(--muted-fg)}
+.no-scroll{-ms-overflow-style:none;scrollbar-width:none}.no-scroll::-webkit-scrollbar{display:none}
+.alert-u{background:linear-gradient(135deg,hsla(0,84%,60%,.2),hsla(0,84%,40%,.2));border:1px solid hsla(0,84%,60%,.3);border-radius:var(--radius)}
+.alert-up{background:linear-gradient(135deg,hsla(38,92%,50%,.2),hsla(38,92%,40%,.2));border:1px solid hsla(38,92%,50%,.3);border-radius:var(--radius)}
+.alert-c{background:linear-gradient(135deg,hsla(142,70%,45%,.2),hsla(142,70%,35%,.2));border:1px solid hsla(142,70%,45%,.3);border-radius:var(--radius)}
+#app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+.spinner{width:32px;height:32px;border:2px solid var(--primary);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .3s ease}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+.dot{width:8px;height:8px;background:var(--muted-fg);border-radius:50%;display:inline-block;animation:bounce 1s infinite}
+.bar{height:6px;border-radius:3px;background:var(--muted);overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .3s}
+</style>
 </head>
+<body>
+<div id="app"></div>
+<script>
+// ===== Firebase Config =====
+firebase.initializeApp({
+  apiKey:"AIzaSyBg4lX_8ZMKSjdbzdV5dI1_dZOipJ56MK0",
+  authDomain:"teachmate12.firebaseapp.com",
+  databaseURL:"https://teachmate12-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"teachmate12",
+  storageBucket:"teachmate12.firebasestorage.app",
+  messagingSenderId:"216135007161",
+  appId:"1:216135007161:web:d00a41bfca86b776e41468"
+});
+const auth=firebase.auth();
+const db=firebase.database();
+const googleProvider=new firebase.auth.GoogleAuthProvider();
+const GEMINI_KEY="AIzaSyB8_8qMsTNT4005TBBnBTmQQo1l8jtEAHU";
+const ADMIN_EMAILS=["kaushalllsharma24@gmail.com"];
+const isAdmin=(e)=>e&&ADMIN_EMAILS.includes(e.toLowerCase());
 
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+// ===== State =====
+let currentUser=null,students=[],reports={},timetable=[],exams=[],alerts=[];
+let activeTab="students",unsubs=[];
+const app=document.getElementById("app");
+
+// ===== Schedule =====
+const SCHEDULE=[
+  {label:"Assembly (Prayer)",start:"08:30",end:"08:50",type:"assembly"},
+  {label:"1st Period",start:"08:50",end:"09:30",type:"period"},
+  {label:"2nd Period",start:"09:30",end:"10:10",type:"period"},
+  {label:"Snack Break",start:"10:10",end:"10:20",type:"break"},
+  {label:"3rd Period",start:"10:20",end:"11:00",type:"period"},
+  {label:"4th Period",start:"11:00",end:"11:40",type:"period"},
+  {label:"Lunch Break",start:"11:40",end:"12:00",type:"break"},
+  {label:"5th Period",start:"12:00",end:"12:40",type:"period"},
+  {label:"6th Period",start:"12:40",end:"13:20",type:"period"},
+  {label:"7th Period",start:"13:20",end:"14:00",type:"period"},
+  {label:"8th Period",start:"14:00",end:"14:40",type:"period"},
+];
+const DAYS=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const toMin=t=>{const[h,m]=t.split(":").map(Number);return h*60+m};
+const fmtMin=m=>m<1?"< 1 min":m<60?m+" min":Math.floor(m/60)+"h "+m%60+"m";
+const getPNum=l=>{const m=l.match(/(\d+)/);return m?parseInt(m[1]):null};
+
+// ===== Helpers =====
+const h=(tag,cls,html)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(html)e.innerHTML=html;return e};
+const DISCIPLINE_GRADES=["A1","A2","B1","B2","C1","C2","D1","D2","E"];
+const getTag=(avg,dg)=>{
+  const di=DISCIPLINE_GRADES.indexOf(dg);
+  const gd=di>=0&&di<=2;
+  if(avg>=70&&gd)return{l:"Active",e:"🟢",c:"color:var(--success)"};
+  if(avg>=40)return{l:"Average",e:"🟡",c:"color:var(--warning)"};
+  return{l:"Needs Attention",e:"🔴",c:"color:var(--destructive)"};
+};
+const getReport=id=>reports[id]||{disciplineGrade:"B1",tests:[]};
+const getAvg=id=>{const r=getReport(id);if(!r.tests||r.tests.length===0)return 0;return r.tests.reduce((s,t)=>s+(t.score/t.maxScore)*100,0)/r.tests.length};
+
+// ===== Auth Listener =====
+auth.onAuthStateChanged(u=>{
+  currentUser=u;
+  unsubs.forEach(fn=>fn());unsubs=[];
+  if(u){setupListeners();renderDashboard();}
+  else renderLogin();
+});
+
+function setupListeners(){
+  const uid=currentUser.uid;
+  const r1=db.ref(`users/${uid}/students`);
+  const cb1=r1.on("value",snap=>{
+    const d=snap.val();
+    students=d?Object.values(d):[];
+    if(activeTab==="students"||activeTab==="marks"||activeTab==="picker"||activeTab==="reports")renderContent();
+    renderStats();
+  });
+  unsubs.push(()=>r1.off("value",cb1));
+
+  const r2=db.ref(`users/${uid}/reports`);
+  const cb2=r2.on("value",snap=>{reports=snap.val()||{};if(activeTab==="reports")renderContent();});
+  unsubs.push(()=>r2.off("value",cb2));
+
+  const r3=db.ref(`users/${uid}/timetable`);
+  const cb3=r3.on("value",snap=>{const d=snap.val();timetable=d?Object.values(d):[];renderPeriodTracker();if(activeTab==="timetable")renderContent();});
+  unsubs.push(()=>r3.off("value",cb3));
+
+  const r4=db.ref("examSchedule");
+  const cb4=r4.on("value",snap=>{const d=snap.val();exams=d?Object.values(d):[];renderAlertBanner();if(activeTab==="timetable")renderContent();});
+  unsubs.push(()=>r4.off("value",cb4));
+
+  const r5=db.ref("alerts");
+  const cb5=r5.on("value",snap=>{const d=snap.val();alerts=d?Object.values(d).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)):[];renderAlertBanner();if(activeTab==="alerts")renderContent();});
+  unsubs.push(()=>r5.off("value",cb5));
+}
+
+// ===== SVG Icons =====
+const icons={
+  users:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  shuffle:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>`,
+  chart:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>`,
+  bot:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M2 14h2M20 14h2M15 13v2M9 13v2"/></svg>`,
+  cal:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+  bell:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>`,
+  clip:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>`,
+  file:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><circle cx="12" cy="13" r="1"/><path d="M12 14v3"/></svg>`,
+  logout:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`,
+  plus:`<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  trash:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
+  check:`<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>`,
+  uncheck:`<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" y1="8" x2="23" y2="14"/><line x1="23" y1="8" x2="17" y2="14"/></svg>`,
+  send:`<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`,
+  upload:`<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`,
+  clock:`<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  arrow:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
+  down:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>`,
+  up:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>`,
+  settings:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+  download:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
+  shield:`<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+  x:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  warn:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+  grad:`<svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5s3 3 6 3 6-3 6-3v-5"/></svg>`,
+  user:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+};
+
+// ===== Login =====
+function renderLogin(){
+  app.innerHTML=`
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px">
+    <div class="glass" style="padding:32px;width:100%;max-width:380px">
+      <div style="text-align:center;margin-bottom:32px">
+        <div class="btn" style="width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">${icons.grad}</div>
+        <h1 class="grad-text" style="font-size:24px;font-weight:800">TeachMate</h1>
+        <p style="color:var(--muted-fg);font-size:14px;margin-top:4px">Your AI Classroom Assistant</p>
+      </div>
+      <button id="gBtn" class="btn-g" style="width:100%;padding:14px;display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px;font-size:14px">
+        <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+        <span style="color:var(--muted-fg);font-size:12px">or</span>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+      </div>
+      <form id="loginForm" style="display:flex;flex-direction:column;gap:12px">
+        <input id="lEmail" type="email" placeholder="Email" required style="width:100%;padding:12px"/>
+        <div style="position:relative"><input id="lPass" type="password" placeholder="Password" required style="width:100%;padding:12px;padding-right:40px"/>
+        <button type="button" id="togglePw" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted-fg);cursor:pointer">👁</button></div>
+        <p id="lErr" style="color:var(--destructive);font-size:12px;text-align:center;display:none"></p>
+        <button type="submit" class="btn" style="width:100%;padding:14px;font-size:14px" id="lSubmit">Sign In</button>
+      </form>
+      <p style="text-align:center;font-size:12px;color:var(--muted-fg);margin-top:16px">
+        <span id="switchText">Don't have an account?</span>
+        <button id="switchBtn" style="color:var(--primary);font-weight:600;background:none;border:none;cursor:pointer;margin-left:4px">Sign Up</button>
+      </p>
+    </div>
+  </div>`;
+  let isSignUp=false;
+  document.getElementById("gBtn").onclick=async()=>{try{await auth.signInWithPopup(googleProvider)}catch(e){showLoginErr(e.message)}};
+  document.getElementById("switchBtn").onclick=()=>{
+    isSignUp=!isSignUp;
+    document.getElementById("lSubmit").textContent=isSignUp?"Sign Up":"Sign In";
+    document.getElementById("switchText").textContent=isSignUp?"Already have an account?":"Don't have an account?";
+    document.getElementById("switchBtn").textContent=isSignUp?"Sign In":"Sign Up";
+  };
+  document.getElementById("togglePw").onclick=()=>{const p=document.getElementById("lPass");p.type=p.type==="password"?"text":"password"};
+  document.getElementById("loginForm").onsubmit=async(e)=>{
+    e.preventDefault();const em=document.getElementById("lEmail").value,pw=document.getElementById("lPass").value;
+    try{if(isSignUp)await auth.createUserWithEmailAndPassword(em,pw);else await auth.signInWithEmailAndPassword(em,pw)}catch(err){showLoginErr(err.message)}
+  };
+  function showLoginErr(m){const el=document.getElementById("lErr");el.style.display="block";el.textContent=m.replace("Firebase: ","");}
+}
+
+// ===== Dashboard =====
+function renderDashboard(){
+  const u=currentUser;
+  const admin=isAdmin(u.email);
+  const name=u.displayName?u.displayName.split(" ")[0]:u.email?u.email.split("@")[0]:"Teacher";
+  app.innerHTML=`
+    <div style="padding:20px 20px 12px;display:flex;align-items:center;justify-content:space-between" class="fade-in">
+      <div>
+        <p style="font-size:12px;color:var(--muted-fg)">Welcome back,</p>
+        <h1 style="font-size:20px;font-weight:800">${name} ${admin?"👑":"👋"}</h1>
+        ${admin?`<span style="font-size:10px;color:var(--primary);font-weight:600;display:flex;align-items:center;gap:4px;margin-top:2px">${icons.shield} Admin</span>`:""}
+      </div>
+      <button id="logoutBtn" class="glass-l" style="padding:10px;border-radius:12px;cursor:pointer;color:var(--muted-fg);background:none">${icons.logout}</button>
+    </div>
+    <div id="alertBanner" style="padding:0 20px 8px"></div>
+    <div id="periodTracker" style="padding:0 20px 8px"></div>
+    <div id="statsArea" style="padding:0 20px 12px"></div>
+    <div id="content" style="flex:1;padding:0 20px 96px;overflow-y:auto"></div>
+    <div style="position:fixed;bottom:0;left:0;right:0;z-index:50">
+      <div style="max-width:480px;margin:0 auto;padding:0 16px 16px">
+        <div id="tabBar" class="glass no-scroll" style="display:flex;align-items:center;overflow-x:auto;padding:6px;gap:2px"></div>
+      </div>
+    </div>`;
+  document.getElementById("logoutBtn").onclick=()=>auth.signOut();
+  renderTabs();renderStats();renderAlertBanner();renderPeriodTracker();renderContent();
+}
+
+function renderTabs(){
+  const tabs=[
+    {k:"students",l:"Students",i:icons.users},{k:"marks",l:"Marks",i:icons.chart},
+    {k:"reports",l:"Reports",i:icons.clip},{k:"timetable",l:"Schedule",i:icons.cal},
+    {k:"qpaper",l:"Q-Paper",i:icons.file},{k:"alerts",l:"Alerts",i:icons.bell},
+    {k:"picker",l:"Picker",i:icons.shuffle},{k:"ai",l:"Nexus",i:icons.bot}
+  ];
+  const bar=document.getElementById("tabBar");if(!bar)return;
+  bar.innerHTML=tabs.map(t=>`<button data-tab="${t.k}" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px;border-radius:12px;border:none;cursor:pointer;flex-shrink:0;font-size:9px;font-weight:500;background:none;transition:all .2s;${activeTab===t.k?"":`color:var(--muted-fg)`}" class="${activeTab===t.k?"tab-act":""}">${t.i}<span>${t.l}</span></button>`).join("");
+  bar.querySelectorAll("button").forEach(b=>b.onclick=()=>{activeTab=b.dataset.tab;renderTabs();renderContent()});
+}
+
+function renderStats(){
+  const el=document.getElementById("statsArea");if(!el)return;
+  const present=students.filter(s=>s.present).length;
+  const avg=students.length?(students.reduce((a,s)=>a+s.marks,0)/students.length).toFixed(0):"0";
+  el.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px" class="fade-in">
+    ${[{l:"Students",v:students.length,c:"var(--primary)"},{l:"Present",v:present,c:"var(--success)"},{l:"Avg Marks",v:avg,c:"var(--accent)"}].map(s=>`
+    <div class="glass-l" style="padding:12px;text-align:center"><p style="font-size:20px;font-weight:700;color:${s.c}">${s.v}</p><p style="font-size:10px;color:var(--muted-fg)">${s.l}</p></div>`).join("")}
+  </div>`;
+}
+
+function renderAlertBanner(){
+  const el=document.getElementById("alertBanner");if(!el)return;
+  const examAlerts=exams.map(e=>{
+    const d=Math.ceil((new Date(e.date)-Date.now())/(864e5));
+    if(d<0)return null;if(d===0)return{id:"ex-"+e.id,title:`${e.subject} Exam Today!`,type:"urgent"};
+    if(d<=7)return{id:"ex-"+e.id,title:`${e.subject} exam in ${d}d`,type:"upcoming"};return null;
+  }).filter(Boolean);
+  const urgent=alerts.filter(a=>a.type==="urgent");
+  const all=[...urgent.map(a=>({id:a.id,title:a.title,type:a.type})),...examAlerts];
+  if(!all.length){el.innerHTML="";return;}
+  el.innerHTML=all.slice(0,2).map(b=>`<div class="${b.type==="urgent"?"alert-u":"alert-up"}" style="padding:10px;display:flex;align-items:center;gap:8px;margin-bottom:6px">
+    ${b.type==="urgent"?`<span style="color:var(--destructive)">${icons.warn}</span>`:`<span style="color:var(--warning)">${icons.cal}</span>`}
+    <p style="flex:1;font-size:12px;font-weight:500">${b.title}</p></div>`).join("");
+}
+
+function renderPeriodTracker(){
+  const el=document.getElementById("periodTracker");if(!el)return;
+  const now=new Date(),dName=DAYS[now.getDay()-1],nowM=now.getHours()*60+now.getMinutes();
+  if(!dName){el.innerHTML=`<div class="glass-l" style="padding:16px;text-align:center"><p style="font-size:14px;color:var(--muted-fg)">🎉 It's the weekend!</p></div>`;return;}
+  if(nowM>=toMin("14:40")){el.innerHTML=`<div class="glass-l" style="padding:16px;text-align:center"><p style="font-size:14px;color:var(--muted-fg)">🏠 School day is over!</p></div>`;return;}
+  if(nowM<toMin("08:30")){el.innerHTML=`<div class="glass-l" style="padding:16px;display:flex;align-items:center;gap:12px"><div style="width:40px;height:40px;border-radius:12px;background:hsla(190,90%,50%,.2);display:flex;align-items:center;justify-content:center"><span style="color:var(--primary)">${icons.clock}</span></div><div><p style="font-size:12px;color:var(--muted-fg)">School starts in</p><p style="font-size:14px;font-weight:700">${fmtMin(toMin("08:30")-nowM)}</p></div></div>`;return;}
+  const ci=SCHEDULE.findIndex(s=>nowM>=toMin(s.start)&&nowM<toMin(s.end));
+  const cur=ci>=0?SCHEDULE[ci]:null;
+  const nxt=ci>=0&&ci<SCHEDULE.length-1?SCHEDULE[ci+1]:null;
+  if(!cur){el.innerHTML="";return;}
+  const tl=toMin(cur.end)-nowM;
+  const prog=((toMin(cur.end)-toMin(cur.start)-tl)/(toMin(cur.end)-toMin(cur.start)))*100;
+  const tSubs={};timetable.filter(e=>e.day===dName).forEach(e=>{tSubs[e.period]=e.subject});
+  const pn=getPNum(cur.label),curSubj=pn?tSubs[pn]:null;
+  const nn=nxt?getPNum(nxt.label):null,nxtSubj=nn?tSubs[nn]:null;
+  const clr=cur.type==="break"?"var(--warning)":cur.type==="assembly"?"var(--accent)":"var(--primary)";
+  el.innerHTML=`
+  <div style="padding:16px;border-radius:16px;background:${cur.type==="break"?"hsla(38,92%,50%,.1)":cur.type==="assembly"?"hsla(280,70%,60%,.1)":"hsla(190,90%,50%,.1)"};border:1px solid ${cur.type==="break"?"hsla(38,92%,50%,.2)":cur.type==="assembly"?"hsla(280,70%,60%,.2)":"hsla(190,90%,50%,.2)"}">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:40px;height:40px;border-radius:12px;background:${cur.type==="break"?"hsla(38,92%,50%,.2)":cur.type==="assembly"?"hsla(280,70%,60%,.2)":"hsla(190,90%,50%,.2)"};display:flex;align-items:center;justify-content:center"><span style="color:${clr}">${icons.clock}</span></div>
+      <div style="flex:1"><p style="font-size:12px;color:var(--muted-fg)">Now</p><p style="font-size:14px;font-weight:700">${curSubj||cur.label}</p>${curSubj?`<p style="font-size:10px;color:var(--muted-fg)">${cur.label}</p>`:""}</div>
+      <div style="text-align:right"><p style="font-size:18px;font-weight:700">${fmtMin(tl)}</p><p style="font-size:10px;color:var(--muted-fg)">left</p></div>
+    </div>
+    <div style="margin-top:12px;height:6px;border-radius:3px;background:hsla(230,30%,20%,.5);overflow:hidden"><div style="height:100%;border-radius:3px;background:${clr};width:${prog}%;transition:width .5s"></div></div>
+  </div>
+  ${nxt?`<div class="glass-l" style="padding:12px;display:flex;align-items:center;gap:12px;margin-top:8px"><span style="color:var(--muted-fg)">${icons.arrow}</span><div style="flex:1"><p style="font-size:10px;color:var(--muted-fg)">Up next</p><p style="font-size:12px;font-weight:500">${nxtSubj||nxt.label}${nxtSubj?` <span style="color:var(--muted-fg)">· ${nxt.label}</span>`:""}</p></div><span style="font-size:10px;color:var(--muted-fg)">${nxt.start}</span></div>`:""}`;
+}
+
+// Refresh period tracker every 15s
+setInterval(()=>{if(currentUser)renderPeriodTracker()},15000);
+
+// ===== Content Renderer =====
+function renderContent(){
+  const el=document.getElementById("content");if(!el)return;
+  el.innerHTML="";
+  if(activeTab==="students")renderStudents(el);
+  else if(activeTab==="marks")renderMarks(el);
+  else if(activeTab==="reports")renderReports(el);
+  else if(activeTab==="picker")renderPicker(el);
+  else if(activeTab==="timetable")renderTimetable(el);
+  else if(activeTab==="alerts")renderAlerts(el);
+  else if(activeTab==="qpaper")renderQPaper(el);
+  else if(activeTab==="ai")renderAI(el);
+}
+
+// ===== Students =====
+function renderStudents(el){
+  const uid=currentUser.uid;
+  const present=students.filter(s=>s.present).length;
+  let html=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px" class="fade-in">
+    <div><h2 style="font-size:18px;font-weight:700">Students</h2><p style="font-size:12px;color:var(--muted-fg)">${present}/${students.length} present</p></div>
+    <button id="addStudentBtn" class="btn" style="padding:10px;border-radius:12px">${icons.plus}</button>
+  </div>
+  <div id="addStudentForm" style="display:none;margin-bottom:12px" class="glass-l" style="padding:16px">
+    <div style="display:flex;gap:8px;padding:16px"><input id="newStudentName" placeholder="Student name" style="flex:1;padding:8px 12px"/><button id="confirmAdd" class="btn" style="padding:8px 16px;font-size:14px">Add</button><button id="cancelAdd" style="padding:8px;background:none;border:none;color:var(--muted-fg);cursor:pointer">${icons.x}</button></div>
+  </div>
+  <div id="studentList"></div>`;
+  el.innerHTML=html;
+  const addForm=document.getElementById("addStudentForm");
+  document.getElementById("addStudentBtn").onclick=()=>addForm.style.display="block";
+  document.getElementById("cancelAdd").onclick=()=>addForm.style.display="none";
+  const doAdd=()=>{
+    const n=document.getElementById("newStudentName").value.trim();if(!n)return;
+    const s={id:Date.now().toString(),name:n,present:false,marks:0};
+    const upd=[...students,s];
+    db.ref(`users/${uid}/students`).set(Object.fromEntries(upd.map(x=>[x.id,x])));
+    document.getElementById("newStudentName").value="";addForm.style.display="none";
+  };
+  document.getElementById("confirmAdd").onclick=doAdd;
+  document.getElementById("newStudentName").onkeydown=e=>{if(e.key==="Enter")doAdd()};
+  renderStudentList();
+}
+
+function renderStudentList(){
+  const el=document.getElementById("studentList");if(!el)return;
+  const uid=currentUser.uid;
+  if(!students.length){el.innerHTML=`<div style="text-align:center;padding:48px 0;color:var(--muted-fg);font-size:14px">No students yet. Tap + to add one.</div>`;return;}
+  el.innerHTML=students.map((s,i)=>`<div class="glass-l fade-in" style="padding:12px;display:flex;align-items:center;gap:12px;margin-bottom:8px;animation-delay:${i*30}ms">
+    <button data-toggle="${s.id}" style="padding:8px;border-radius:8px;border:none;cursor:pointer;background:${s.present?"hsla(142,70%,45%,.2)":"hsla(0,84%,60%,.2)"};color:${s.present?"var(--success)":"var(--destructive)"}">${s.present?icons.check:icons.uncheck}</button>
+    <span style="flex:1;font-size:14px;font-weight:500">${s.name}</span>
+    <span style="font-size:12px;font-weight:600;padding:4px 8px;border-radius:6px;background:${s.present?"hsla(142,70%,45%,.2)":"hsla(0,84%,60%,.2)"};color:${s.present?"var(--success)":"var(--destructive)"}">${s.present?"Present":"Absent"}</span>
+    <button data-del="${s.id}" style="padding:6px;background:none;border:none;cursor:pointer;color:var(--muted-fg)">${icons.trash}</button>
+  </div>`).join("");
+  el.querySelectorAll("[data-toggle]").forEach(b=>b.onclick=()=>{
+    const upd=students.map(s=>s.id===b.dataset.toggle?{...s,present:!s.present}:s);
+    db.ref(`users/${uid}/students`).set(Object.fromEntries(upd.map(x=>[x.id,x])));
+  });
+  el.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{
+    const upd=students.filter(s=>s.id!==b.dataset.del);
+    db.ref(`users/${uid}/students`).set(upd.length?Object.fromEntries(upd.map(x=>[x.id,x])):null);
+  });
+}
+
+// ===== Marks =====
+function renderMarks(el){
+  const uid=currentUser.uid;
+  const avg=students.length?(students.reduce((s,x)=>s+x.marks,0)/students.length).toFixed(1):"0";
+  let html=`<div style="margin-bottom:16px" class="fade-in"><h2 style="font-size:18px;font-weight:700">Marks</h2><p style="font-size:12px;color:var(--muted-fg)">Class average: ${avg}</p></div>`;
+  if(!students.length){html+=`<div style="text-align:center;padding:48px 0;color:var(--muted-fg);font-size:14px">Add students first to track marks.</div>`;el.innerHTML=html;return;}
+  html+=students.map((s,i)=>`<div class="glass-l fade-in" style="padding:12px;display:flex;align-items:center;gap:12px;margin-bottom:8px;animation-delay:${i*30}ms">
+    <span style="flex:1;font-size:14px;font-weight:500">${s.name}</span>
+    <input type="number" min="0" max="100" value="${s.marks}" data-marks="${s.id}" style="width:70px;text-align:center;padding:6px"/>
+    <div style="width:60px"><div class="bar"><div class="bar-fill" style="width:${s.marks}%;background:${s.marks>=70?"var(--success)":s.marks>=40?"var(--warning)":"var(--destructive)"}"></div></div></div>
+  </div>`).join("");
+  el.innerHTML=html;
+  el.querySelectorAll("[data-marks]").forEach(inp=>inp.onchange=()=>{
+    const v=Math.max(0,Math.min(100,Number(inp.value)||0));
+    const upd=students.map(s=>s.id===inp.dataset.marks?{...s,marks:v}:s);
+    db.ref(`users/${uid}/students`).set(Object.fromEntries(upd.map(x=>[x.id,x])));
+  });
+}
+
+// ===== Reports =====
+function renderReports(el){
+  const uid=currentUser.uid;
+  let html=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px" class="fade-in">
+    <div><h2 style="font-size:18px;font-weight:700">Reports</h2><p style="font-size:12px;color:var(--muted-fg)">${students.length} students</p></div>
+    ${students.length?`<button id="dlAllPdf" class="btn" style="padding:8px 12px;font-size:12px;border-radius:12px;display:flex;align-items:center;gap:6px">${icons.download} Class PDF</button>`:""}
+  </div>`;
+
+  // Bar chart using canvas
+  if(students.length){
+    html+=`<div class="glass-l" style="padding:16px;margin-bottom:16px"><p style="font-size:12px;font-weight:600;color:var(--muted-fg);margin-bottom:12px">Average Marks</p><canvas id="barChart" height="160" style="width:100%"></canvas></div>`;
+  }
+
+  if(!students.length){html+=`<div style="text-align:center;padding:48px 0;color:var(--muted-fg);font-size:14px">Add students first to generate reports.</div>`;}
+  else{
+    html+=`<div id="reportCards"></div>`;
+  }
+  el.innerHTML=html;
+
+  if(students.length){
+    document.getElementById("dlAllPdf").onclick=downloadAllPDF;
+    drawBarChart();
+    renderReportCards();
+  }
+}
+
+function drawBarChart(){
+  const canvas=document.getElementById("barChart");if(!canvas)return;
+  const ctx=canvas.getContext("2d");
+  canvas.width=canvas.offsetWidth*2;canvas.height=320;
+  ctx.scale(2,2);
+  const w=canvas.offsetWidth,h=160,pad=30,barW=Math.min(30,(w-pad*2)/students.length-4);
+  ctx.clearRect(0,0,w,h);
+  // Grid
+  ctx.strokeStyle="hsla(230,30%,22%,0.5)";ctx.lineWidth=0.5;
+  for(let i=0;i<=4;i++){const y=pad+(h-pad*2)*(1-i/4);ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(w-10,y);ctx.stroke();
+    ctx.fillStyle="hsl(215,20%,60%)";ctx.font="9px sans-serif";ctx.fillText(i*25,5,y+3);}
+  students.forEach((s,i)=>{
+    const avg=Math.round(getAvg(s.id));
+    const bh=(avg/100)*(h-pad*2);
+    const x=pad+i*((w-pad*2)/students.length)+(((w-pad*2)/students.length)-barW)/2;
+    const y=h-pad-bh;
+    ctx.fillStyle=avg>=70?"hsl(142,70%,45%)":avg>=40?"hsl(38,92%,50%)":"hsl(0,84%,60%)";
+    ctx.beginPath();ctx.roundRect(x,y,barW,bh,3);ctx.fill();
+    ctx.fillStyle="hsl(215,20%,60%)";ctx.font="8px sans-serif";ctx.textAlign="center";
+    const name=s.name.length>6?s.name.slice(0,6)+"…":s.name;
+    ctx.fillText(name,x+barW/2,h-pad+12);
+  });
+}
+
+function renderReportCards(){
+  const el=document.getElementById("reportCards");if(!el)return;
+  const uid=currentUser.uid;
+  el.innerHTML=students.map((s,i)=>{
+    const r=getReport(s.id),avg=getAvg(s.id),tag=getTag(avg,r.disciplineGrade);
+    return`<div class="glass-l fade-in" style="margin-bottom:8px;animation-delay:${i*30}ms">
+      <div data-expand="${s.id}" style="padding:12px;display:flex;align-items:center;gap:12px;cursor:pointer">
+        <span style="font-size:18px">${tag.e}</span>
+        <div style="flex:1"><p style="font-size:14px;font-weight:500">${s.name}</p><p style="font-size:10px;color:var(--muted-fg)">${tag.l} · Avg: ${avg.toFixed(0)}% · Grade: ${r.disciplineGrade}</p></div>
+        <button data-dlpdf="${s.id}" style="padding:6px;background:none;border:none;cursor:pointer;color:var(--primary)">${icons.download}</button>
+        <span style="color:var(--muted-fg)">${icons.down}</span>
+      </div>
+      <div id="exp-${s.id}" style="display:none;padding:0 16px 16px"></div>
+    </div>`;
+  }).join("");
+
+  el.querySelectorAll("[data-expand]").forEach(btn=>btn.onclick=(e)=>{
+    if(e.target.closest("[data-dlpdf]"))return;
+    const id=btn.dataset.expand,exp=document.getElementById("exp-"+id);
+    exp.style.display=exp.style.display==="none"?"block":"none";
+    if(exp.style.display==="block")renderExpanded(id);
+  });
+  el.querySelectorAll("[data-dlpdf]").forEach(btn=>btn.onclick=()=>downloadStudentPDF(btn.dataset.dlpdf));
+}
+
+function renderExpanded(id){
+  const exp=document.getElementById("exp-"+id);if(!exp)return;
+  const uid=currentUser.uid,r=getReport(id);
+  let html=`<div style="margin-bottom:12px"><p style="font-size:12px;font-weight:600;color:var(--muted-fg);margin-bottom:6px">Discipline Grade</p>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">${DISCIPLINE_GRADES.map(g=>`<button data-dg="${g}" class="${r.disciplineGrade===g?"btn":""}" style="padding:4px 10px;font-size:12px;border-radius:8px;border:none;cursor:pointer;${r.disciplineGrade!==g?"background:hsla(230,30%,20%,.5);color:var(--muted-fg)":""}">${g}</button>`).join("")}</div></div>`;
+  html+=`<div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><p style="font-size:12px;font-weight:600;color:var(--muted-fg)">Test Scores</p><button id="addTest-${id}" style="font-size:10px;color:var(--primary);font-weight:600;background:none;border:none;cursor:pointer">+ Add Test</button></div>`;
+  html+=`<div id="addTestForm-${id}" style="display:none;margin-bottom:8px"></div>`;
+  if(r.tests&&r.tests.length){
+    html+=r.tests.map((t,ti)=>{
+      const pct=(t.score/t.maxScore)*100;
+      return`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid hsla(230,30%,22%,.3)">
+        <span style="flex:1;font-size:12px">${t.testName}</span><span style="font-size:12px;font-weight:500">${t.score}/${t.maxScore}</span>
+        <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:${pct>=70?"hsla(142,70%,45%,.2)":pct>=40?"hsla(38,92%,50%,.2)":"hsla(0,84%,60%,.2)"};color:${pct>=70?"var(--success)":pct>=40?"var(--warning)":"var(--destructive)"}">${pct.toFixed(0)}%</span>
+        <button data-rmtest="${ti}" style="background:none;border:none;cursor:pointer;color:var(--muted-fg);font-size:12px">✕</button>
+      </div>`;
+    }).join("");
+  }else html+=`<p style="font-size:10px;color:var(--muted-fg);padding:8px 0">No tests added yet</p>`;
+  html+=`</div>`;
+  exp.innerHTML=html;
+
+  exp.querySelectorAll("[data-dg]").forEach(b=>b.onclick=()=>{
+    const nr={...r,disciplineGrade:b.dataset.dg};
+    reports[id]=nr;db.ref(`users/${uid}/reports`).set(reports);renderExpanded(id);
+  });
+  document.getElementById("addTest-"+id).onclick=()=>{
+    const f=document.getElementById("addTestForm-"+id);
+    f.style.display="flex";f.style.gap="6px";
+    f.innerHTML=`<input id="tn-${id}" placeholder="Test name" style="flex:1;padding:6px 8px;font-size:12px"/><input id="ts-${id}" type="number" placeholder="Score" style="width:50px;padding:6px;font-size:12px;text-align:center"/><input id="tm-${id}" type="number" placeholder="Max" value="100" style="width:50px;padding:6px;font-size:12px;text-align:center"/><button id="confirmTest-${id}" class="btn" style="padding:6px 10px;font-size:12px;border-radius:8px">✓</button>`;
+    document.getElementById("confirmTest-"+id).onclick=()=>{
+      const name=document.getElementById("tn-"+id).value.trim();if(!name)return;
+      const sc=Math.max(0,Number(document.getElementById("ts-"+id).value)||0);
+      const mx=Math.max(1,Number(document.getElementById("tm-"+id).value)||100);
+      const nr={...r,tests:[...(r.tests||[]),{testName:name,score:Math.min(sc,mx),maxScore:mx}]};
+      reports[id]=nr;db.ref(`users/${uid}/reports`).set(reports);renderExpanded(id);
+    };
+  };
+  exp.querySelectorAll("[data-rmtest]").forEach(b=>b.onclick=()=>{
+    const nr={...r,tests:[...(r.tests||[])]};nr.tests.splice(parseInt(b.dataset.rmtest),1);
+    reports[id]=nr;db.ref(`users/${uid}/reports`).set(reports);renderExpanded(id);
+  });
+}
+
+function downloadStudentPDF(id){
+  const s=students.find(x=>x.id===id);if(!s)return;
+  const r=getReport(id),avg=getAvg(id),tag=getTag(avg,r.disciplineGrade);
+  const{jsPDF}=window.jspdf;const doc=new jsPDF();
+  doc.setFontSize(20);doc.setFont("helvetica","bold");doc.text("Student Report Card",105,20,{align:"center"});
+  doc.setFontSize(10);doc.setFont("helvetica","normal");doc.text("TeachMate · Generated Report",105,28,{align:"center"});
+  doc.setDrawColor(0,150,200);doc.line(20,35,190,35);
+  doc.setFontSize(14);doc.setFont("helvetica","bold");doc.text(`Name: ${s.name}`,20,48);
+  doc.setFontSize(11);doc.setFont("helvetica","normal");
+  doc.text(`Discipline Grade: ${r.disciplineGrade}`,20,58);doc.text(`Overall Average: ${avg.toFixed(1)}%`,20,66);
+  doc.text(`Status: ${tag.e} ${tag.l}`,20,74);doc.text(`Attendance: ${s.present?"Present":"Absent"}`,20,82);
+  if(r.tests&&r.tests.length){
+    doc.setFontSize(13);doc.setFont("helvetica","bold");doc.text("Test Scores",20,98);
+    doc.autoTable({startY:104,head:[["Test","Score","Max","%"]],
+      body:r.tests.map(t=>[t.testName,t.score,t.maxScore,((t.score/t.maxScore)*100).toFixed(1)+"%"]),
+      theme:"grid",headStyles:{fillColor:[0,150,200],textColor:255,fontStyle:"bold"},alternateRowStyles:{fillColor:[240,248,255]}});
+  }
+  doc.setFontSize(8);doc.setTextColor(150);doc.text(`Generated on ${new Date().toLocaleDateString("en-IN")} by TeachMate`,105,280,{align:"center"});
+  doc.save(`${s.name}_Report.pdf`);
+}
+
+function downloadAllPDF(){
+  const{jsPDF}=window.jspdf;const doc=new jsPDF();
+  doc.setFontSize(20);doc.setFont("helvetica","bold");doc.text("Class Report - All Students",105,20,{align:"center"});
+  doc.setFontSize(10);doc.setFont("helvetica","normal");doc.text(`Generated on ${new Date().toLocaleDateString("en-IN")}`,105,28,{align:"center"});
+  doc.autoTable({startY:40,head:[["Name","Avg %","Discipline","Tag","Attendance"]],
+    body:students.map(s=>{const avg=getAvg(s.id),r=getReport(s.id),tag=getTag(avg,r.disciplineGrade);return[s.name,avg.toFixed(1)+"%",r.disciplineGrade,tag.l,s.present?"Present":"Absent"]}),
+    theme:"grid",headStyles:{fillColor:[0,150,200],textColor:255,fontStyle:"bold"}});
+  doc.save("Class_Report.pdf");
+}
+
+// ===== Picker =====
+let pickerUsed=new Set(),pickerPicked=null,pickerSpinning=false;
+function renderPicker(el){
+  const avail=students.filter(s=>!pickerUsed.has(s.id)).length;
+  el.innerHTML=`<div style="text-align:center;margin-bottom:24px" class="fade-in"><h2 style="font-size:18px;font-weight:700">Random Picker</h2><p style="font-size:12px;color:var(--muted-fg)">${avail} of ${students.length} remaining</p></div>
+  <div class="glass" style="padding:32px;text-align:center;min-height:160px;display:flex;align-items:center;justify-content:center;margin-bottom:24px">
+    <div id="pickerResult">${pickerPicked?`<p style="font-size:28px;font-weight:700" class="grad-text">${pickerPicked.name}</p><p style="font-size:12px;color:var(--muted-fg);margin-top:8px">🎯 Selected!</p>`:`<p style="color:var(--muted-fg);font-size:14px">${students.length===0?"Add students first":"Tap shuffle to pick"}</p>`}</div>
+  </div>
+  <div style="display:flex;gap:12px;margin-bottom:24px">
+    <button id="pickBtn" class="btn" style="flex:1;padding:14px;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px" ${avail===0||!students.length?"disabled":""}>${icons.shuffle} Shuffle</button>
+    <button id="resetPick" class="glass-l" style="padding:14px 16px;display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;background:none;color:var(--fg)">↺ Reset</button>
+  </div>
+  ${pickerUsed.size?`<div class="glass-l" style="padding:16px"><p style="font-size:12px;color:var(--muted-fg);margin-bottom:8px">Already picked:</p><div style="display:flex;flex-wrap:wrap;gap:6px">${students.filter(s=>pickerUsed.has(s.id)).map(s=>`<span style="font-size:12px;background:hsla(190,90%,50%,.2);color:var(--primary);padding:4px 8px;border-radius:6px">${s.name}</span>`).join("")}</div></div>`:""}`;
+  document.getElementById("pickBtn").onclick=()=>{
+    const avails=students.filter(s=>!pickerUsed.has(s.id));if(!avails.length)return;
+    pickerSpinning=true;let count=0;
+    const iv=setInterval(()=>{
+      const r=students[Math.floor(Math.random()*students.length)];
+      document.getElementById("pickerResult").innerHTML=`<p style="font-size:28px;font-weight:700;color:var(--muted-fg)">${r.name}</p>`;
+      count++;if(count>10){clearInterval(iv);
+        const final=avails[Math.floor(Math.random()*avails.length)];
+        pickerPicked=final;pickerUsed.add(final.id);pickerSpinning=false;
+        document.getElementById("pickerResult").innerHTML=`<p style="font-size:28px;font-weight:700" class="grad-text">${final.name}</p><p style="font-size:12px;color:var(--muted-fg);margin-top:8px">🎯 Selected!</p>`;
+        renderPicker(el);
+      }
+    },80);
+  };
+  document.getElementById("resetPick").onclick=()=>{pickerUsed=new Set();pickerPicked=null;renderPicker(el)};
+}
+
+// ===== Timetable =====
+function renderTimetable(el){
+  const uid=currentUser.uid,admin=isAdmin(currentUser.email);
+  const now=new Date(),dName=DAYS[now.getDay()-1];
+  const todayE=timetable.filter(e=>e.day===dName).sort((a,b)=>a.period-b.period);
+  let tab2="my";
+  const render=()=>{
+    let html=`<div style="display:flex;gap:8px;margin-bottom:16px">${[{k:"my",l:"My Timetable"},{k:"exam",l:"Exam Schedule"}].map(t=>`<button data-tt="${t.k}" class="${tab2===t.k?"tab-act":""}" style="flex:1;padding:8px;font-size:12px;font-weight:600;border-radius:12px;border:none;cursor:pointer;${tab2!==t.k?"background:hsla(230,40%,22%,.4);color:var(--muted-fg)":""}">${t.l}</button>`).join("")}</div>`;
+    if(tab2==="my"){
+      html+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><div><h2 style="font-size:18px;font-weight:700">Timetable</h2><p style="font-size:12px;color:var(--muted-fg)">${todayE.length} classes today</p></div>
+        <div style="display:flex;gap:8px"><input type="file" id="ttFile" accept="image/*,.pdf" style="display:none"/><button id="ttUpload" class="glass-l" style="padding:10px;border-radius:12px;cursor:pointer;color:var(--primary);background:none">${icons.upload}</button><button id="ttAdd" class="btn" style="padding:10px;border-radius:12px">${icons.plus}</button></div></div>`;
+      html+=`<div id="ttAddForm" style="display:none;margin-bottom:12px"></div>`;
+      html+=`<div id="ttMsg" style="display:none;margin-bottom:12px"></div>`;
+      if(todayE.length){
+        html+=`<p style="font-size:12px;font-weight:600;color:var(--muted-fg);margin-bottom:6px">Today's Schedule</p>`;
+        html+=todayE.map((e,i)=>`<div class="glass-l" style="padding:12px;display:flex;align-items:center;gap:12px;margin-bottom:8px">
+          <div style="width:32px;height:32px;border-radius:8px;background:hsla(190,90%,50%,.2);display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:12px;font-weight:700">P${e.period}</div>
+          <div style="flex:1"><p style="font-size:14px;font-weight:500">${e.subject}</p><p style="font-size:10px;color:var(--muted-fg)">${e.className} · ${e.startTime}-${e.endTime}</p></div>
+          <button data-rmtt="${e.id}" style="padding:6px;background:none;border:none;cursor:pointer;color:var(--muted-fg)">${icons.trash}</button></div>`).join("");
+      }
+      // Other days
+      DAYS.filter(d=>timetable.some(e=>e.day===d)&&d!==dName).forEach(d=>{
+        const de=timetable.filter(e=>e.day===d).sort((a,b)=>a.period-b.period);
+        html+=`<p style="font-size:12px;font-weight:600;color:var(--muted-fg);margin:12px 0 6px">${d}</p>`;
+        html+=de.map(e=>`<div class="glass-l" style="padding:12px;display:flex;align-items:center;gap:12px;margin-bottom:8px">
+          <div style="width:32px;height:32px;border-radius:8px;background:hsla(260,60%,55%,.2);display:flex;align-items:center;justify-content:center;color:var(--secondary);font-size:12px;font-weight:700">P${e.period}</div>
+          <div style="flex:1"><p style="font-size:14px;font-weight:500">${e.subject}</p><p style="font-size:10px;color:var(--muted-fg)">${e.className} · ${e.startTime}-${e.endTime}</p></div>
+          <button data-rmtt="${e.id}" style="padding:6px;background:none;border:none;cursor:pointer;color:var(--muted-fg)">${icons.trash}</button></div>`).join("");
+      });
+      if(!timetable.length)html+=`<div style="text-align:center;padding:48px 0;color:var(--muted-fg);font-size:14px">No timetable entries yet.<br>Tap <b>Upload</b> to scan or <b>+</b> to add manually.</div>`;
+    }else{
+      html+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><div><h2 style="font-size:18px;font-weight:700">Exam Schedule</h2><p style="font-size:12px;color:var(--muted-fg)">${admin?"Admin · You can add exams":"View only"}</p></div>
+        ${admin?`<div style="display:flex;gap:8px"><input type="file" id="examFile" accept="image/*,.pdf" style="display:none"/><button id="examUpload" class="glass-l" style="padding:10px;border-radius:12px;cursor:pointer;color:var(--primary);background:none">${icons.upload}</button><button id="examAdd" class="btn" style="padding:10px;border-radius:12px">${icons.plus}</button></div>`:""}</div>`;
+      html+=`<div id="examAddForm" style="display:none;margin-bottom:12px"></div>`;
+      html+=`<div id="examMsg" style="display:none;margin-bottom:12px"></div>`;
+      const sorted=[...exams].sort((a,b)=>new Date(a.date)-new Date(b.date));
+      html+=sorted.map((e,i)=>{
+        const diff=Math.ceil((new Date(e.date)-Date.now())/864e5);
+        const past=diff<0,today=diff===0;
+        return`<div class="glass-l" style="padding:12px;display:flex;align-items:center;gap:12px;margin-bottom:8px;${past?"opacity:.6":""}">
+          <div style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:${past?"hsla(142,70%,45%,.2)":today?"hsla(0,84%,60%,.2)":"hsla(38,92%,50%,.2)"};color:${past?"var(--success)":today?"var(--destructive)":"var(--warning)"}">${icons.cal}</div>
+          <div style="flex:1"><p style="font-size:14px;font-weight:500">${e.subject}</p><p style="font-size:10px;color:var(--muted-fg)">${new Date(e.date).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})} · ${e.startTime} · ${e.duration}min</p></div>
+          <span style="font-size:10px;padding:2px 8px;border-radius:6px;background:${past?"hsla(142,70%,45%,.2)":today?"hsla(0,84%,60%,.2)":"hsla(38,92%,50%,.2)"};color:${past?"var(--success)":today?"var(--destructive)":"var(--warning)"}">${past?"Done ✅":today?"Today!":diff+"d left"}</span>
+          ${admin?`<button data-rmex="${e.id}" style="padding:6px;background:none;border:none;cursor:pointer;color:var(--muted-fg)">${icons.trash}</button>`:""}
+        </div>`;
+      }).join("");
+      if(!exams.length)html+=`<div style="text-align:center;padding:48px 0;color:var(--muted-fg);font-size:14px">No exams scheduled yet.</div>`;
+    }
+    el.innerHTML=html;
+    // Bind tabs
+    el.querySelectorAll("[data-tt]").forEach(b=>b.onclick=()=>{tab2=b.dataset.tt;render()});
+    // Bind timetable actions
+    if(tab2==="my"){
+      document.getElementById("ttUpload").onclick=()=>document.getElementById("ttFile").click();
+      document.getElementById("ttFile").onchange=async(ev)=>{
+        const f=ev.target.files[0];if(!f)return;
+        showMsg("ttMsg","Scanning timetable with AI...",true);
+        try{const entries=await extractTT(f);
+          if(!entries.length){showMsg("ttMsg","Could not extract. Try clearer image.");}
+          else{const upd=[...timetable,...entries];db.ref(`users/${uid}/timetable`).set(Object.fromEntries(upd.map(e=>[e.id,e])));showMsg("ttMsg",`✅ Extracted ${entries.length} periods!`);}
+        }catch(e){showMsg("ttMsg","Upload failed.");}
+      };
+      document.getElementById("ttAdd").onclick=()=>{
+        const f=document.getElementById("ttAddForm");f.style.display="block";
+        f.innerHTML=`<div class="glass-l" style="padding:16px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><p style="font-size:14px;font-weight:600">Add Period</p><button id="ttAddClose" style="background:none;border:none;cursor:pointer;color:var(--muted-fg)">${icons.x}</button></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+            <select id="ttDay">${DAYS.map(d=>`<option>${d}</option>`).join("")}</select>
+            <input id="ttPeriod" type="number" min="1" max="10" value="1" placeholder="Period"/>
+            <input id="ttClass" placeholder="Class (e.g. 10A)"/>
+            <input id="ttSubject" placeholder="Subject"/>
+            <input id="ttStart" type="time" value="08:50"/>
+            <input id="ttEnd" type="time" value="09:30"/>
+          </div>
+          <button id="ttConfirm" class="btn" style="width:100%;padding:10px;font-size:14px">Add to Timetable</button></div>`;
+        document.getElementById("ttAddClose").onclick=()=>f.style.display="none";
+        document.getElementById("ttConfirm").onclick=()=>{
+          const cn=document.getElementById("ttClass").value.trim(),sb=document.getElementById("ttSubject").value.trim();
+          if(!cn||!sb)return;
+          const entry={id:Date.now().toString(),className:cn,period:Number(document.getElementById("ttPeriod").value),subject:sb,startTime:document.getElementById("ttStart").value,endTime:document.getElementById("ttEnd").value,day:document.getElementById("ttDay").value};
+          const upd=[...timetable,entry];db.ref(`users/${uid}/timetable`).set(Object.fromEntries(upd.map(e=>[e.id,e])));
+          f.style.display="none";
+        };
+      };
+      el.querySelectorAll("[data-rmtt]").forEach(b=>b.onclick=()=>{
+        const upd=timetable.filter(e=>e.id!==b.dataset.rmtt);
+        db.ref(`users/${uid}/timetable`).set(upd.length?Object.fromEntries(upd.map(e=>[e.id,e])):null);
+      });
+    }else{
+      if(admin){
+        document.getElementById("examUpload")?.addEventListener("click",()=>document.getElementById("examFile").click());
+        document.getElementById("examFile")?.addEventListener("change",async(ev)=>{
+          const f=ev.target.files[0];if(!f)return;
+          showMsg("examMsg","Scanning exam schedule with AI...",true);
+          try{const entries=await extractExams(f);
+            if(!entries.length)showMsg("examMsg","Could not extract exams.");
+            else{const upd=[...exams,...entries];db.ref("examSchedule").set(Object.fromEntries(upd.map(e=>[e.id,e])));showMsg("examMsg",`✅ Extracted ${entries.length} exams!`);}
+          }catch(e){showMsg("examMsg","Upload failed.");}
+        });
+        document.getElementById("examAdd")?.addEventListener("click",()=>{
+          const f=document.getElementById("examAddForm");f.style.display="block";
+          f.innerHTML=`<div class="glass-l" style="padding:16px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><p style="font-size:14px;font-weight:600">Add Exam</p><button id="examClose" style="background:none;border:none;cursor:pointer;color:var(--muted-fg)">${icons.x}</button></div>
+            <input id="examSubj" placeholder="Subject" style="width:100%;margin-bottom:8px"/>
+            <input id="examDate" type="date" style="width:100%;margin-bottom:8px"/>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px"><input id="examTime" type="time" value="09:00"/><input id="examDur" type="number" min="30" value="180" placeholder="Duration"/></div>
+            <button id="examConfirm" class="btn" style="width:100%;padding:10px;font-size:14px">Add Exam</button></div>`;
+          document.getElementById("examClose").onclick=()=>f.style.display="none";
+          document.getElementById("examConfirm").onclick=()=>{
+            const sb=document.getElementById("examSubj").value.trim(),dt=document.getElementById("examDate").value;
+            if(!sb||!dt)return;
+            const entry={id:Date.now().toString(),subject:sb,date:dt,startTime:document.getElementById("examTime").value,duration:Number(document.getElementById("examDur").value)||180};
+            const upd=[...exams,entry];db.ref("examSchedule").set(Object.fromEntries(upd.map(e=>[e.id,e])));
+            f.style.display="none";
+          };
+        });
+      }
+      el.querySelectorAll("[data-rmex]").forEach(b=>b.onclick=()=>{
+        const upd=exams.filter(e=>e.id!==b.dataset.rmex);
+        db.ref("examSchedule").set(upd.length?Object.fromEntries(upd.map(e=>[e.id,e])):null);
+      });
+    }
+  };
+  render();
+}
+
+function showMsg(id,msg,loading){
+  const el=document.getElementById(id);if(!el)return;
+  el.style.display="flex";el.className="fade-in";
+  el.style.cssText="display:flex;align-items:center;gap:8px;padding:12px;border-radius:12px;background:hsla(190,90%,50%,.2);border:1px solid hsla(190,90%,50%,.3);font-size:14px;margin-bottom:12px";
+  el.innerHTML=`${loading?'<div class="spinner" style="width:16px;height:16px;border-width:2px"></div>':""}${msg}`;
+  if(!loading)setTimeout(()=>{el.style.display="none"},3000);
+}
+
+// ===== Gemini AI Helpers =====
+async function fileToBase64(file){
+  return new Promise(r=>{const rd=new FileReader();rd.onload=()=>r(rd.result.split(",")[1]);rd.readAsDataURL(file)});
+}
+
+async function extractTT(file){
+  const b64=await fileToBase64(file);
+  const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`,{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({contents:[{parts:[{inlineData:{mimeType:file.type||"image/jpeg",data:b64}},{text:`Extract timetable from this image. Return ONLY JSON array: [{className,period,subject,startTime,endTime,day}]. Days: Monday-Saturday. Times: HH:MM. Return [] if can't extract.`}]}]})
+  });
+  const d=await res.json();const t=d?.candidates?.[0]?.content?.parts?.[0]?.text||"[]";
+  const m=t.match(/\[[\s\S]*\]/);if(!m)return[];
+  try{return JSON.parse(m[0]).map((e,i)=>({id:`${Date.now()}_${i}`,className:e.className||"General",period:e.period||i+1,subject:e.subject||"Unknown",startTime:e.startTime||"08:00",endTime:e.endTime||"08:45",day:e.day||"Monday"}))}catch{return[]}
+}
+
+async function extractExams(file){
+  const b64=await fileToBase64(file);
+  const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`,{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({contents:[{parts:[{inlineData:{mimeType:file.type||"image/jpeg",data:b64}},{text:`Extract exam schedule. Return ONLY JSON array: [{subject,date(YYYY-MM-DD),startTime(HH:MM),duration(mins)}]. Return [] if can't.`}]}]})
+  });
+  const d=await res.json();const t=d?.candidates?.[0]?.content?.parts?.[0]?.text||"[]";
+  const m=t.match(/\[[\s\S]*\]/);if(!m)return[];
+  try{return JSON.parse(m[0]).map((e,i)=>({id:`${Date.now()}_${i}`,subject:e.subject||"Unknown",date:e.date||new Date().toISOString().split("T")[0],startTime:e.startTime||"09:00",duration:e.duration||180}))}catch{return[]}
+}
+
+// ===== Alerts =====
+function renderAlerts(el){
+  const admin=isAdmin(currentUser.email);
+  let html=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px" class="fade-in">
+    <div><h2 style="font-size:18px;font-weight:700">Alerts</h2><p style="font-size:12px;color:var(--muted-fg)">${admin?"Admin · Broadcast alerts":""+alerts.length+" active alerts"}</p></div>
+    ${admin?`<button id="addAlert" class="btn" style="padding:10px;border-radius:12px">${icons.plus}</button>`:""}
+  </div>
+  <div id="alertAddForm" style="display:none;margin-bottom:12px"></div>`;
+  const typeMap={urgent:{bg:"alert-u",c:"var(--destructive)",l:"Urgent",i:icons.warn},upcoming:{bg:"alert-up",c:"var(--warning)",l:"Upcoming",i:icons.bell},completed:{bg:"alert-c",c:"var(--success)",l:"Completed",i:icons.check},info:{bg:"glass-l",c:"var(--primary)",l:"Info",i:icons.bot}};
+  html+=alerts.map((a,i)=>{const cfg=typeMap[a.type]||typeMap.info;
+    return`<div class="${cfg.bg} fade-in" style="padding:12px;border-radius:var(--radius);display:flex;align-items:flex-start;gap:12px;margin-bottom:8px;animation-delay:${i*30}ms">
+    <span style="color:${cfg.c};flex-shrink:0;margin-top:2px">${cfg.i}</span>
+    <div style="flex:1"><p style="font-size:14px;font-weight:600">${a.title}</p><p style="font-size:12px;color:var(--muted-fg);margin-top:2px">${a.message}</p><p style="font-size:10px;color:var(--muted-fg);margin-top:4px">${new Date(a.createdAt).toLocaleDateString("en-IN",{day:"numeric",month:"short"})}</p></div>
+    ${admin?`<button data-rmalert="${a.id}" style="padding:6px;background:none;border:none;cursor:pointer;color:var(--muted-fg)">${icons.trash}</button>`:""}
+  </div>`;}).join("");
+  if(!alerts.length)html+=`<div style="text-align:center;padding:48px 0;color:var(--muted-fg);font-size:14px">No alerts yet.</div>`;
+  el.innerHTML=html;
+  if(admin){
+    document.getElementById("addAlert")?.addEventListener("click",()=>{
+      const f=document.getElementById("alertAddForm");f.style.display="block";
+      let aType="info";
+      const renderForm=()=>{
+        f.innerHTML=`<div class="glass-l" style="padding:16px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><p style="font-size:14px;font-weight:600">New Alert</p><button id="alertClose" style="background:none;border:none;cursor:pointer;color:var(--muted-fg)">${icons.x}</button></div>
+          <input id="alertTitle" placeholder="Alert title" style="width:100%;margin-bottom:8px"/>
+          <textarea id="alertMsg" placeholder="Alert message" rows="2" style="width:100%;margin-bottom:8px;resize:none"></textarea>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:8px">${["urgent","upcoming","completed","info"].map(t=>`<button data-atype="${t}" class="${aType===t?"tab-act":""}" style="padding:6px;font-size:10px;font-weight:600;border-radius:8px;border:none;cursor:pointer;${aType!==t?"background:hsla(230,40%,22%,.4);color:var(--muted-fg)":""}">${typeMap[t].l}</button>`).join("")}</div>
+          <button id="alertConfirm" class="btn" style="width:100%;padding:10px;font-size:14px">Broadcast Alert</button></div>`;
+        document.getElementById("alertClose").onclick=()=>f.style.display="none";
+        f.querySelectorAll("[data-atype]").forEach(b=>b.onclick=()=>{aType=b.dataset.atype;renderForm()});
+        document.getElementById("alertConfirm").onclick=()=>{
+          const t=document.getElementById("alertTitle").value.trim(),m=document.getElementById("alertMsg").value.trim();
+          if(!t||!m)return;
+          const a={id:Date.now().toString(),title:t,message:m,type:aType,createdAt:new Date().toISOString(),createdBy:currentUser.email};
+          const upd=[...alerts,a];db.ref("alerts").set(Object.fromEntries(upd.map(x=>[x.id,x])));
+          f.style.display="none";
+        };
+      };renderForm();
+    });
+    el.querySelectorAll("[data-rmalert]").forEach(b=>b.onclick=()=>{
+      const upd=alerts.filter(a=>a.id!==b.dataset.rmalert);
+      db.ref("alerts").set(upd.length?Object.fromEntries(upd.map(a=>[a.id,a])):null);
+    });
+  }
+}
+
+// ===== Question Paper Generator =====
+let qpConfig={difficulty:"medium",mcqs:10,shortAnswer:5,longAnswer:3,fillBlanks:5,trueFalse:5,totalMarks:80,subject:"",className:"",timeAllowed:"3 hours",instructions:""};
+let qpText="",qpPaper=null;
+function renderQPaper(el){
+  let html=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px" class="fade-in">
+    <div><h2 style="font-size:18px;font-weight:700">Question Paper</h2><p style="font-size:12px;color:var(--muted-fg)">Upload content → AI generates paper</p></div>
+    <button id="qpSettings" class="glass-l" style="padding:10px;border-radius:12px;cursor:pointer;color:var(--muted-fg);background:none">${icons.settings}</button>
+  </div>
+  <div id="qpConfig" style="display:none;margin-bottom:12px"></div>
+  <div id="qpStatus" style="display:none;margin-bottom:12px"></div>
+  <input type="file" id="qpFile" accept="image/*,.pdf,.txt" style="display:none"/>
+  <button id="qpUploadBtn" class="glass-l" style="width:100%;padding:24px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;color:var(--muted-fg);background:none;margin-bottom:16px">${icons.upload}<span style="font-size:14px;font-weight:500">${qpText?"📄 Content loaded · Tap to replace":"Upload textbook page / chapter"}</span><span style="font-size:10px">Image, PDF, or text file</span></button>
+  ${qpText?`<button id="qpGenerate" class="btn" style="width:100%;padding:14px;font-size:14px;margin-bottom:16px">🧠 Generate Question Paper</button>`:""}
+  ${qpPaper?`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><p style="font-size:14px;font-weight:700">Generated Paper</p><button id="qpDlPdf" class="btn" style="padding:8px 12px;font-size:12px;border-radius:12px;display:flex;align-items:center;gap:6px">${icons.download} PDF</button></div><div class="glass-l" style="padding:16px;max-height:400px;overflow-y:auto"><pre style="font-size:12px;white-space:pre-wrap;font-family:inherit;line-height:1.6">${qpPaper}</pre></div>`:""}
+  ${!qpText&&!qpPaper?`<div style="text-align:center;padding:24px 0;color:var(--muted-fg);font-size:14px"><p>📝 How it works:</p><p style="font-size:12px;margin-top:8px">1. Upload textbook chapter</p><p style="font-size:12px">2. Configure difficulty & question types</p><p style="font-size:12px">3. AI generates question paper</p><p style="font-size:12px">4. Download as PDF</p></div>`:""}`;
+  el.innerHTML=html;
+  document.getElementById("qpUploadBtn").onclick=()=>document.getElementById("qpFile").click();
+  document.getElementById("qpFile").onchange=async(ev)=>{
+    const f=ev.target.files[0];if(!f)return;
+    if(f.type.startsWith("image/")||f.type==="application/pdf"){
+      showQpMsg("Extracting text with AI...",true);
+      try{const b64=await fileToBase64(f);
+        const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts:[{inlineData:{mimeType:f.type,data:b64}},{text:"Extract ALL text content from this textbook page. Return full text preserving structure."}]}]})});
+        const d=await res.json();const t=d?.candidates?.[0]?.content?.parts?.[0]?.text||"";
+        if(t){qpText=t;showQpMsg(`✅ Extracted ${t.length} chars`);renderQPaper(el);}else showQpMsg("Could not extract text.");
+      }catch{showQpMsg("Extraction failed.");}
+    }else{const rd=new FileReader();rd.onload=()=>{qpText=rd.result;showQpMsg(`✅ Loaded ${f.name}`);renderQPaper(el)};rd.readAsText(f);}
+  };
+  document.getElementById("qpSettings")?.addEventListener("click",()=>{
+    const c=document.getElementById("qpConfig");c.style.display=c.style.display==="none"?"block":"none";
+    if(c.style.display==="block"){
+      c.innerHTML=`<div class="glass-l" style="padding:16px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><p style="font-size:14px;font-weight:600">Paper Settings</p><button id="qpCfgClose" style="background:none;border:none;cursor:pointer;color:var(--muted-fg)">${icons.x}</button></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px"><input id="qpSubj" value="${qpConfig.subject}" placeholder="Subject"/><input id="qpClass" value="${qpConfig.className}" placeholder="Class"/></div>
+        <p style="font-size:12px;color:var(--muted-fg);margin-bottom:4px">Difficulty</p>
+        <div style="display:flex;gap:6px;margin-bottom:8px">${["easy","medium","hard","mixed"].map(d=>`<button data-diff="${d}" class="${qpConfig.difficulty===d?"btn":""}" style="flex:1;padding:6px;font-size:12px;border-radius:8px;border:none;cursor:pointer;text-transform:capitalize;${qpConfig.difficulty!==d?"background:hsla(230,30%,20%,.5);color:var(--muted-fg)":""}">${d}</button>`).join("")}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+          <div><label style="font-size:10px;color:var(--muted-fg)">MCQs</label><input id="qpMcq" type="number" min="0" value="${qpConfig.mcqs}" style="width:100%"/></div>
+          <div><label style="font-size:10px;color:var(--muted-fg)">Short Ans</label><input id="qpShort" type="number" min="0" value="${qpConfig.shortAnswer}" style="width:100%"/></div>
+          <div><label style="font-size:10px;color:var(--muted-fg)">Long Ans</label><input id="qpLong" type="number" min="0" value="${qpConfig.longAnswer}" style="width:100%"/></div>
+          <div><label style="font-size:10px;color:var(--muted-fg)">Fill Blanks</label><input id="qpFill" type="number" min="0" value="${qpConfig.fillBlanks}" style="width:100%"/></div>
+          <div><label style="font-size:10px;color:var(--muted-fg)">True/False</label><input id="qpTf" type="number" min="0" value="${qpConfig.trueFalse}" style="width:100%"/></div>
+          <div><label style="font-size:10px;color:var(--muted-fg)">Total Marks</label><input id="qpMarks" type="number" min="1" value="${qpConfig.totalMarks}" style="width:100%"/></div>
+        </div>
+        <input id="qpTime" value="${qpConfig.timeAllowed}" placeholder="Time (e.g. 3 hours)" style="width:100%;margin-bottom:8px"/>
+        <input id="qpInstr" value="${qpConfig.instructions}" placeholder="Additional instructions" style="width:100%;margin-bottom:8px"/>
+        <button id="qpSaveCfg" class="btn" style="width:100%;padding:10px;font-size:14px">Save Settings</button></div>`;
+      document.getElementById("qpCfgClose").onclick=()=>c.style.display="none";
+      c.querySelectorAll("[data-diff]").forEach(b=>b.onclick=()=>{qpConfig.difficulty=b.dataset.diff;document.getElementById("qpSettings").click();document.getElementById("qpSettings").click()});
+      document.getElementById("qpSaveCfg").onclick=()=>{
+        qpConfig.subject=document.getElementById("qpSubj").value;qpConfig.className=document.getElementById("qpClass").value;
+        qpConfig.mcqs=Number(document.getElementById("qpMcq").value);qpConfig.shortAnswer=Number(document.getElementById("qpShort").value);
+        qpConfig.longAnswer=Number(document.getElementById("qpLong").value);qpConfig.fillBlanks=Number(document.getElementById("qpFill").value);
+        qpConfig.trueFalse=Number(document.getElementById("qpTf").value);qpConfig.totalMarks=Number(document.getElementById("qpMarks").value);
+        qpConfig.timeAllowed=document.getElementById("qpTime").value;qpConfig.instructions=document.getElementById("qpInstr").value;
+        c.style.display="none";
+      };
+    }
+  });
+  document.getElementById("qpGenerate")?.addEventListener("click",async()=>{
+    showQpMsg("Generating question paper...",true);
+    const prompt=`You are an expert teacher creating a question paper. Based on the following content, generate a well-structured question paper.
+
+CONTENT:
+${qpText.slice(0,15000)}
+
+REQUIREMENTS:
+- Subject: ${qpConfig.subject||"As per content"}, Class: ${qpConfig.className||"As per content"}
+- Difficulty: ${qpConfig.difficulty}
+- MCQs: ${qpConfig.mcqs}, Short Answer (2-3 marks): ${qpConfig.shortAnswer}, Long Answer (5 marks): ${qpConfig.longAnswer}
+- Fill in Blanks: ${qpConfig.fillBlanks}, True/False: ${qpConfig.trueFalse}
+- Total Marks: ${qpConfig.totalMarks}, Time: ${qpConfig.timeAllowed}
+${qpConfig.instructions?`- Instructions: ${qpConfig.instructions}`:""}
+
+FORMAT: SECTION A: MCQs, SECTION B: Fill Blanks, SECTION C: True/False, SECTION D: Short Answer, SECTION E: Long Answer, then ANSWER KEY.`;
+    try{
+      const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
+      const d=await res.json();const t=d?.candidates?.[0]?.content?.parts?.[0]?.text||"";
+      if(t){qpPaper=t;showQpMsg("✅ Generated!");renderQPaper(el);}else showQpMsg("Failed to generate.");
+    }catch{showQpMsg("Generation failed.");}
+  });
+  document.getElementById("qpDlPdf")?.addEventListener("click",()=>{
+    if(!qpPaper)return;
+    const{jsPDF}=window.jspdf;const doc=new jsPDF();const pw=doc.internal.pageSize.getWidth();
+    doc.setFontSize(16);doc.setFont("helvetica","bold");doc.text(qpConfig.subject||"Question Paper",pw/2,20,{align:"center"});
+    doc.setFontSize(10);doc.setFont("helvetica","normal");
+    if(qpConfig.className)doc.text(`Class: ${qpConfig.className}`,20,30);
+    doc.text(`Time: ${qpConfig.timeAllowed}`,pw-20,30,{align:"right"});doc.text(`Marks: ${qpConfig.totalMarks}`,pw-20,36,{align:"right"});
+    doc.setDrawColor(0,150,200);doc.line(20,40,pw-20,40);
+    const lines=doc.splitTextToSize(qpPaper,pw-40);let y=50;
+    for(const line of lines){if(y>280){doc.addPage();y=20;}
+      if(line.startsWith("SECTION")||line.startsWith("ANSWER KEY")){doc.setFont("helvetica","bold");doc.setFontSize(11);y+=4;}
+      else{doc.setFont("helvetica","normal");doc.setFontSize(10);}
+      doc.text(line,20,y);y+=5;}
+    doc.setFontSize(7);doc.setTextColor(150);doc.text(`Generated by TeachMate on ${new Date().toLocaleDateString("en-IN")}`,pw/2,290,{align:"center"});
+    doc.save(`Question_Paper_${qpConfig.subject||"Paper"}.pdf`);
+  });
+}
+function showQpMsg(msg,loading){
+  let el=document.getElementById("qpStatus");if(!el)return;
+  el.style.display="flex";el.style.cssText="display:flex;align-items:center;gap:8px;padding:12px;border-radius:12px;background:hsla(190,90%,50%,.2);border:1px solid hsla(190,90%,50%,.3);font-size:14px;margin-bottom:12px";
+  el.innerHTML=`${loading?'<div class="spinner" style="width:16px;height:16px;border-width:2px"></div>':""}${msg}`;
+  if(!loading)setTimeout(()=>{if(el)el.style.display="none"},3000);
+}
+
+// ===== Nexus AI =====
+let aiMessages=[{id:"welcome",role:"ai",text:"Hi! I'm Nexus AI, your teaching assistant. Ask me anything — explain topics, generate quizzes, or get classroom ideas! 🎓"}];
+let aiLoading=false;
+function renderAI(el){
+  el.innerHTML=`<div style="display:flex;flex-direction:column;height:calc(100vh - 220px)">
+    <div style="text-align:center;margin-bottom:12px"><h2 style="font-size:18px;font-weight:700" class="grad-text">Nexus AI</h2><p style="font-size:12px;color:var(--muted-fg)">Powered by Gemini · Your AI Teaching Assistant</p></div>
+    <div id="aiChat" style="flex:1;overflow-y:auto;padding-right:4px" class="no-scroll"></div>
+    <div style="display:flex;gap:8px;padding-top:8px"><input id="aiInput" placeholder="Ask Nexus AI anything..." style="flex:1;padding:12px 16px;border-radius:12px"/><button id="aiSend" class="btn" style="padding:12px;border-radius:12px">${icons.send}</button></div>
+  </div>`;
+  renderAIMessages();
+  const send=async()=>{
+    const inp=document.getElementById("aiInput");const txt=inp.value.trim();if(!txt||aiLoading)return;
+    aiMessages.push({id:Date.now().toString(),role:"user",text:txt});inp.value="";aiLoading=true;renderAIMessages();
+    try{
+      const hist=aiMessages.filter(m=>m.id!=="welcome").map(m=>({role:m.role==="user"?"user":"model",parts:[{text:m.text}]}));
+      const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`,{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({systemInstruction:{parts:[{text:"You are Nexus AI, a friendly teaching assistant. Help with explanations, quizzes, lesson planning. Be concise and practical."}]},contents:hist})
+      });
+      const d=await res.json();const t=d?.candidates?.[0]?.content?.parts?.[0]?.text||"Sorry, couldn't process that.";
+      aiMessages.push({id:(Date.now()+1).toString(),role:"ai",text:t});
+    }catch{aiMessages.push({id:(Date.now()+1).toString(),role:"ai",text:"Something went wrong. Try again."});}
+    aiLoading=false;renderAIMessages();
+  };
+  document.getElementById("aiSend").onclick=send;
+  document.getElementById("aiInput").onkeydown=e=>{if(e.key==="Enter")send()};
+}
+
+function renderAIMessages(){
+  const chat=document.getElementById("aiChat");if(!chat)return;
+  chat.innerHTML=aiMessages.map(m=>`<div style="display:flex;gap:8px;margin-bottom:12px;${m.role==="user"?"justify-content:flex-end":"justify-content:flex-start"}">
+    ${m.role==="ai"?`<div style="width:28px;height:28px;border-radius:8px;background:hsla(190,90%,50%,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:4px"><span style="color:var(--primary)">${icons.bot}</span></div>`:""}
+    <div style="max-width:80%;padding:12px;border-radius:16px;font-size:14px;line-height:1.5;white-space:pre-wrap;${m.role==="user"?"background:linear-gradient(135deg,hsl(190,90%,50%),hsl(200,90%,45%));color:var(--primary-fg);border-bottom-right-radius:4px":"background:hsla(230,40%,22%,.4);border:1px solid hsla(210,40%,96%,.1);border-bottom-left-radius:4px"}">${m.text}</div>
+    ${m.role==="user"?`<div style="width:28px;height:28px;border-radius:8px;background:hsla(280,70%,60%,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:4px"><span style="color:var(--accent)">${icons.user}</span></div>`:""}
+  </div>`).join("")+
+  (aiLoading?`<div style="display:flex;gap:8px"><div style="width:28px;height:28px;border-radius:8px;background:hsla(190,90%,50%,.2);display:flex;align-items:center;justify-content:center"><span style="color:var(--primary)">${icons.bot}</span></div><div class="glass-l" style="padding:12px;border-radius:16px;border-bottom-left-radius:4px"><span class="dot"></span> <span class="dot" style="animation-delay:150ms"></span> <span class="dot" style="animation-delay:300ms"></span></div></div>`:"");
+  chat.scrollTop=chat.scrollHeight;
+}
+</script>
+</body>
 </html>
